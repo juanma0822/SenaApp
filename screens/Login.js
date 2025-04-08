@@ -6,7 +6,6 @@ import {
   TouchableOpacity, 
   StyleSheet,
   ScrollView,
-  Dimensions,
   Pressable,
   Linking,
   Image

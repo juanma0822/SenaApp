@@ -6,8 +6,8 @@ import { camposGenerales } from "../components/forms/camposGenerales";
 
 export default function RegistroFuncionario() {
   const camposFuncionario = [
-    { name: "cargo", placeholder: "Cargo" },
-    { name: "area", placeholder: "Area" },
+    { name: "cargo", placeholder: "Cargo asignado" },
+    { name: "area", placeholder: "Area de trabajo" },
   ];
 
   const handleRegistro = (data) => {

@@ -4,12 +4,9 @@ import { getAuth, signOut } from "firebase/auth";
 import { CommonActions } from "@react-navigation/native";
 
 export default function Home(props) {
-  const auth = getAuth();
-  const user = auth.currentUser;
+  const { email, password } = props.route.params;
 
   const handleSignOut = () => {
-    signOut(auth)
-      .then(() => {
         Alert.alert('Cerrando sesion',"Has salido correctamente!");
         props.navigation.dispatch(
           CommonActions.reset({
@@ -17,15 +14,12 @@ export default function Home(props) {
             routes: [{ name: "Login" }],
           })
         );
-      })
-      .catch((error) => {
-        console.error("Error signing out: ", error);
-      });
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.welcomeText}>Bienvenido, {user.email}!</Text>
+      <Text style={styles.welcomeText}>Bienvenido, {email}!</Text>
+      <Text style={styles.infoText}>Tu contraseña es: {password}</Text>
       <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
         <Text style={styles.signOutButtonText}>Cerrar sesión</Text>
       </TouchableOpacity>
@@ -43,6 +37,11 @@ const styles = StyleSheet.create({
   welcomeText: {
     fontSize: 24,
     fontWeight: "bold",
+    marginBottom: 20,
+  },
+  infoText: {
+    fontSize: 16,
+    color: "#666",
     marginBottom: 20,
   },
   signOutButton: {

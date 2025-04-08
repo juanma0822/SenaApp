@@ -13,9 +13,11 @@ import {
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import Icon from "react-native-vector-icons/Ionicons";
-
+import SplashScreen from "../screens/SplashScreen";
+import { useNavigation } from "@react-navigation/native";
 
 export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
+  const navigation = useNavigation();
   const [formData, setFormData] = useState({});
   const [departamentos, setDepartamentos] = useState([]);
   const [municipios, setMunicipios] = useState([]);
@@ -23,13 +25,14 @@ export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
   const [loadingMunicipios, setLoadingMunicipios] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isRepeatPasswordVisible, setIsRepeatPasswordVisible] = useState(false);
-
-
+  const [guardando, setGuardando] = useState(false);
 
   //Obtener la lista de los departamentos al momento de cargarse el componente
   useEffect(() => {
     // Obtener la lista de departamentos al cargar el componente
-    fetch("https://www.datos.gov.co/resource/xdk5-pm3f.json?$select=departamento&$group=departamento")
+    fetch(
+      "https://www.datos.gov.co/resource/xdk5-pm3f.json?$select=departamento&$group=departamento"
+    )
       .then((response) => response.json())
       .then((data) => {
         const departamentosList = data.map((item) => item.departamento).sort();
@@ -46,16 +49,23 @@ export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
               text: "Reintentar",
               onPress: () => {
                 setLoadingMunicipios(true);
-                fetch(`https://www.datos.gov.co/resource/xdk5-pm3f.json?departamento=${departamento}`)
+                fetch(
+                  `https://www.datos.gov.co/resource/xdk5-pm3f.json?departamento=${departamento}`
+                )
                   .then((response) => response.json())
                   .then((data) => {
-                    const municipiosList = data.map((item) => item.municipio).sort();
+                    const municipiosList = data
+                      .map((item) => item.municipio)
+                      .sort();
                     setMunicipios(municipiosList);
                     setLoadingMunicipios(false);
                   })
                   .catch(() => {
                     setLoadingMunicipios(false);
-                    Alert.alert("Error", "No se pudo obtener los municipios. Inténtalo más tarde.");
+                    Alert.alert(
+                      "Error",
+                      "No se pudo obtener los municipios. Inténtalo más tarde."
+                    );
                   });
               },
             },
@@ -70,7 +80,9 @@ export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
     handleChange("departamento", departamento);
     setLoadingMunicipios(true);
     // Obtener la lista de municipios del departamento seleccionado
-    fetch(`https://www.datos.gov.co/resource/xdk5-pm3f.json?departamento=${departamento}`)
+    fetch(
+      `https://www.datos.gov.co/resource/xdk5-pm3f.json?departamento=${departamento}`
+    )
       .then((response) => response.json())
       .then((data) => {
         const municipiosList = data.map((item) => item.municipio).sort();
@@ -87,16 +99,23 @@ export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
               text: "Reintentar",
               onPress: () => {
                 setLoadingMunicipios(true);
-                fetch(`https://www.datos.gov.co/resource/xdk5-pm3f.json?departamento=${departamento}`)
+                fetch(
+                  `https://www.datos.gov.co/resource/xdk5-pm3f.json?departamento=${departamento}`
+                )
                   .then((response) => response.json())
                   .then((data) => {
-                    const municipiosList = data.map((item) => item.municipio).sort();
+                    const municipiosList = data
+                      .map((item) => item.municipio)
+                      .sort();
                     setMunicipios(municipiosList);
                     setLoadingMunicipios(false);
                   })
                   .catch(() => {
                     setLoadingMunicipios(false);
-                    Alert.alert("Error", "No se pudo obtener los municipios. Inténtalo más tarde.");
+                    Alert.alert(
+                      "Error",
+                      "No se pudo obtener los municipios. Inténtalo más tarde."
+                    );
                   });
               },
             },
@@ -112,20 +131,23 @@ export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
 
   // Manejo del evento de envío del formulario - VALIDAR QUE TODOS LOS DATOS SE ENVIEN EXCEPTO EL FIJO QUE ES OPCIONAL
   const handleSubmit = () => {
-    // Validar campos requeridos (todos excepto telefonoFijo)
-    const camposRequeridos = campos.filter(c => c.name !== "telefonoFijo");
-  
+    const camposRequeridos = campos.filter((c) => c.name !== "telefonoFijo");
+
     const camposVacios = camposRequeridos.filter(
-      c => !formData[c.name] || formData[c.name].trim() === ""
+      (c) => !formData[c.name] || formData[c.name].trim() === ""
     );
-  
+
     if (camposVacios.length > 0) {
-      const nombresCampos = camposVacios.map(c => c.placeholder || c.name).join(", ");
-      Alert.alert("Campos incompletos", `Por favor completa los siguientes campos: ${nombresCampos}`);
+      const nombresCampos = camposVacios
+        .map((c) => c.placeholder || c.name)
+        .join(", ");
+      Alert.alert(
+        "Campos incompletos",
+        `Por favor completa los siguientes campos: ${nombresCampos}`
+      );
       return;
     }
 
-    // Validar correo institucional
     const correo = formData["correoInstitucional"];
     if (!correo.endsWith("@soy.sena.edu.co")) {
       Alert.alert(
@@ -135,17 +157,25 @@ export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
       return;
     }
 
-    // Validar que las contraseñas coincidan
     const contrasena = formData["contrasena"];
     const repetirContrasena = formData["repetirContrasena"];
 
     if (contrasena !== repetirContrasena) {
-      Alert.alert("Contraseñas no coinciden", "Las contraseñas ingresadas no son iguales.");
+      Alert.alert(
+        "Contraseñas no coinciden",
+        "Las contraseñas ingresadas no son iguales."
+      );
       return;
     }
-  
-    // Todo bien, se envía el formulario
-    onSubmit(formData);
+
+    // Aquí se simula el envío de datos
+    setGuardando(true);
+    setTimeout(() => {
+      setGuardando(false);
+      Alert.alert("✅ Datos guardados exitosamente");
+      onSubmit(formData);
+      navigation.replace("Login"); //Redirigir a la pantalla de login
+    }, 3000);
   };
 
   const renderSeccion = (tituloSeccion, icono, camposSeccion) => (
@@ -156,14 +186,19 @@ export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
       </View>
       <View style={styles.card}>
         {camposSeccion.map((campo) => {
-          if (campo.name === "contrasena" || campo.name === "repetirContrasena") {
+          if (
+            campo.name === "contrasena" ||
+            campo.name === "repetirContrasena"
+          ) {
             const isPassword = campo.name === "contrasena";
-            const isVisible = isPassword ? isPasswordVisible : isRepeatPasswordVisible;
+            const isVisible = isPassword
+              ? isPasswordVisible
+              : isRepeatPasswordVisible;
             const toggleVisibility = () =>
               isPassword
                 ? setIsPasswordVisible(!isPasswordVisible)
                 : setIsRepeatPasswordVisible(!isRepeatPasswordVisible);
-          
+
             return (
               <View key={campo.name} style={styles.inputPasswordContainer}>
                 <TextInput
@@ -186,7 +221,9 @@ export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
           if (campo.name === "departamento") {
             return (
               <View key={campo.name} style={styles.pickerContainer}>
-                <Text style={styles.label}>Selecciona tu departamento de residencia:</Text>
+                <Text style={styles.label}>
+                  Selecciona tu departamento de residencia:
+                </Text>
                 {loadingDepartamentos ? (
                   <ActivityIndicator size="large" color="#00AF00" />
                 ) : (
@@ -207,7 +244,9 @@ export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
           if (campo.name === "municipio") {
             return (
               <View key={campo.name} style={styles.pickerContainer}>
-                <Text style={styles.label}>Selecciona tu municipio de residencia:</Text>
+                <Text style={styles.label}>
+                  Selecciona tu municipio de residencia:
+                </Text>
                 {loadingMunicipios ? (
                   <ActivityIndicator size="large" color="#00AF00" />
                 ) : (
@@ -277,20 +316,43 @@ export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
   );
 
   // Agrupación lógica
-  const camposUsuario = campos.filter(c =>
-    ["nombres", "apellidos", "correoPersonal", "correoInstitucional", "contrasena", "repetirContrasena"].includes(c.name)
-  );
-
-  const camposPersonales = campos.filter(c =>
+  const camposUsuario = campos.filter((c) =>
     [
-      "tipoDocumento", "numeroDocumento", "lugarExpedicion", "genero", "edad", "nivelSisben", "grupoSisben",
-      "departamento", "municipio", "direccion", "celular", "telefonoFijo"
+      "nombres",
+      "apellidos",
+      "correoPersonal",
+      "correoInstitucional",
+      "contrasena",
+      "repetirContrasena",
     ].includes(c.name)
   );
 
-  const otrosCampos = campos.filter(c =>
-    !camposUsuario.includes(c) && !camposPersonales.includes(c)
+  const camposPersonales = campos.filter((c) =>
+    [
+      "tipoDocumento",
+      "numeroDocumento",
+      "lugarExpedicion",
+      "genero",
+      "edad",
+      "nivelSisben",
+      "grupoSisben",
+      "departamento",
+      "municipio",
+      "direccion",
+      "celular",
+      "telefonoFijo",
+    ].includes(c.name)
   );
+
+  const otrosCampos = campos.filter(
+    (c) => !camposUsuario.includes(c) && !camposPersonales.includes(c)
+  );
+
+  if (guardando) {
+    return (
+      <SplashScreen message="Guardando información..." autoNavigate={false} />
+    );
+  }
 
   return (
     <KeyboardAvoidingView
@@ -304,7 +366,8 @@ export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
           {renderSeccion("Información del Usuario", "👤", camposUsuario)}
           {renderSeccion("Información Personal", "📄", camposPersonales)}
 
-          {otrosCampos.length > 0 && renderSeccion("Información Adicional", "📝", otrosCampos)}
+          {otrosCampos.length > 0 &&
+            renderSeccion("Información Adicional", "📝", otrosCampos)}
 
           <TouchableOpacity style={styles.boton} onPress={handleSubmit}>
             <Text style={styles.botonTexto}>{botonText}</Text>
@@ -402,7 +465,7 @@ const styles = StyleSheet.create({
   inputPassword: {
     flex: 1,
     height: 50,
-  },  
+  },
   boton: {
     backgroundColor: "#00AF00",
     padding: 15,

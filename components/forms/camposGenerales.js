@@ -39,18 +39,6 @@ export const camposGenerales = [
   },
   { name: "edad", placeholder: "Edad", keyboardType: "numeric" },
   {
-    name: "nivelSisben",
-    type: "picker",
-    placeholder: "Nivel SISBEN",
-    options: ["A", "B", "C", "D"],
-  },
-  {
-    name: "grupoSisben",
-    type: "picker",
-    placeholder: "Grupo SISBEN",
-    options: Array.from({ length: 10 }, (_, i) => `${i + 1}`),
-  },
-  {
     name: "departamento",
     type: "picker",
     placeholder: "Departamento",

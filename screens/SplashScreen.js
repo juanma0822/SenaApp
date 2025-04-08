@@ -5,23 +5,27 @@ import Svg, { Path } from "react-native-svg";
 import * as Animatable from "react-native-animatable";
 import { useNavigation } from "@react-navigation/native";
 
-export default function SplashScreen() {
+export default function SplashScreen({
+  message = "Cargando módulos...",
+  autoNavigate = true,
+  duration = 3000,
+  nextScreen = "Login",
+}) {
   const navigation = useNavigation();
 
   useEffect(() => {
-    //Despues de 3 segundos, redirige a login
-    const timeout = setTimeout(() => {
-      navigation.replace("Login"); // Cambia "Login" por el nombre de tu pantalla de inicio
-    }, 3000);
-
-    return () => clearTimeout(timeout); // Limpia el timeout al desmontar el componente
-  }, []);
+    if (autoNavigate) {
+      const timeout = setTimeout(() => {
+        navigation.replace(nextScreen);
+      }, duration);
+      return () => clearTimeout(timeout);
+    }
+  }, [autoNavigate, duration, navigation, nextScreen]);
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#00AF00" />
 
-      {/* Logo animado */}
       <Animatable.Image
         animation="fadeIn"
         easing="ease-in-out"
@@ -31,17 +35,14 @@ export default function SplashScreen() {
         resizeMode="contain"
       />
 
-      {/* Título animado */}
       <Animatable.Text animation="fadeInUp" delay={500} style={styles.title}>
         Plataforma SENA
       </Animatable.Text>
 
-      {/* Subtítulo o carga */}
       <Animatable.Text animation="fadeIn" delay={1500} style={styles.subtitle}>
-        Cargando módulos...
+        {message}
       </Animatable.Text>
 
-      {/* Wave SVG */}
       <View style={styles.waveContainer}>
         <Svg
           height="100%"

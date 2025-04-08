@@ -8,6 +8,18 @@ export default function RegistroAprendiz() {
   const camposAprendiz = [
     { name: "programa", placeholder: "Programa formacion" },
     { name: "ficha", placeholder: "Número de ficha" },
+    {
+      name: "nivelSisben",
+      type: "picker",
+      placeholder: "Nivel SISBEN",
+      options: ["A", "B", "C", "D"],
+    },
+    {
+      name: "grupoSisben",
+      type: "picker",
+      placeholder: "Grupo SISBEN",
+      options: Array.from({ length: 10 }, (_, i) => `${i + 1}`),
+    },
   ];
 
   const handleRegistro = (data) => {

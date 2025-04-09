@@ -82,12 +82,24 @@ function RootStack() {
       <Stack.Screen
         name="RegistroAprendiz"
         component={RegistroAprendiz}
-        options={{ title: "Registro Aprendiz" }}
+        options={{
+          title: "Registro Aprendiz",
+          headerTintColor: "#00AF00", // Botón de retroceso en blanco
+          headerTitleStyle: {
+            fontWeight: "bold", // Texto del título en negrita
+          },
+        }}
       />
       <Stack.Screen
         name="RegistroFuncionario"
         component={RegistroFuncionario}
-        options={{ title: "Registro Funcionario" }}
+        options={{
+          title: "Registro Funcionario",
+          headerTintColor: "#00AF00", // Botón de retroceso en blanco
+          headerTitleStyle: {
+            fontWeight: "bold", // Texto del título en negrita
+          },
+        }}
       />
     </Stack.Navigator>
   );

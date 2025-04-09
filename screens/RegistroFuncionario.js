@@ -7,7 +7,7 @@ import { camposGenerales } from "../components/forms/camposGenerales";
 export default function RegistroFuncionario() {
   const camposFuncionario = [
     { name: "cargo", placeholder: "Cargo asignado" },
-    { name: "area", placeholder: "Area de trabajo" },
+    { name: "area", placeholder: "Área de trabajo" },
   ];
 
   const handleRegistro = (data) => {
@@ -18,7 +18,6 @@ export default function RegistroFuncionario() {
   return (
     <>
       <RegistroForm
-        titulo="Registro Funcionario"
         campos={[...camposGenerales, ...camposFuncionario]}
         onSubmit={handleRegistro}
         botonText="Registrar Funcionario"

@@ -6,7 +6,7 @@ import { camposGenerales } from "../components/forms/camposGenerales";
 
 export default function RegistroAprendiz() {
   const camposAprendiz = [
-    { name: "programa", placeholder: "Programa formacion" },
+    { name: "programa", placeholder: "Programa formación" },
     { name: "ficha", placeholder: "Número de ficha" },
     {
       name: "nivelSisben",

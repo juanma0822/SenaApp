@@ -361,7 +361,6 @@ export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
     >
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.container}>
-          <Text style={styles.titulo}>{titulo}</Text>
 
           {renderSeccion("Información del Usuario", "👤", camposUsuario)}
           {renderSeccion("Información Personal", "📄", camposPersonales)}

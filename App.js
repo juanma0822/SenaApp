@@ -84,7 +84,10 @@ function RootStack() {
         component={RegistroAprendiz}
         options={{
           title: "Registro Aprendiz",
-          headerTintColor: "#00AF00", // Botón de retroceso en blanco
+          headerStyle: {
+            backgroundColor: "#00AF00", // Fondo verde institucional
+          },
+          headerTintColor: "#FFFFFF", // Botón de retroceso en blanco
           headerTitleStyle: {
             fontWeight: "bold", // Texto del título en negrita
           },
@@ -95,7 +98,10 @@ function RootStack() {
         component={RegistroFuncionario}
         options={{
           title: "Registro Funcionario",
-          headerTintColor: "#00AF00", // Botón de retroceso en blanco
+          headerStyle: {
+            backgroundColor: "#00AF00", // Fondo verde institucional
+          },
+          headerTintColor: "#FFFFFF", // Botón de retroceso en blanco
           headerTitleStyle: {
             fontWeight: "bold", // Texto del título en negrita
           },

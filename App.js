@@ -85,7 +85,7 @@ function RootStack() {
         options={{
           title: "Registro Aprendiz",
           headerStyle: {
-            backgroundColor: "#00AF00", // Fondo verde institucional
+            backgroundColor: "#FFFFFFF", // Fondo verde institucional
           },
           headerTintColor: "#FFFFFF", // Botón de retroceso en blanco
           headerTitleStyle: {

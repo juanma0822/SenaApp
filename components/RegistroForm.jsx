@@ -26,6 +26,8 @@ export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isRepeatPasswordVisible, setIsRepeatPasswordVisible] = useState(false);
   const [guardando, setGuardando] = useState(false);
+  //Manejador de errores
+  const [erroresCampos, setErroresCampos] = useState({});
 
   //Obtener la lista de los departamentos al momento de cargarse el componente
   useEffect(() => {
@@ -132,12 +134,19 @@ export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
   // Manejo del evento de envío del formulario - VALIDAR QUE TODOS LOS DATOS SE ENVIEN EXCEPTO EL FIJO QUE ES OPCIONAL
   const handleSubmit = () => {
     const camposRequeridos = campos.filter((c) => c.name !== "telefonoFijo");
+    const nuevosErrores = {};
 
     const camposVacios = camposRequeridos.filter(
       (c) => !formData[c.name] || formData[c.name].trim() === ""
     );
 
     if (camposVacios.length > 0) {
+      camposVacios.forEach((campo) => {
+        nuevosErrores[campo.name] = true;
+      });
+
+      setErroresCampos(nuevosErrores);
+
       const nombresCampos = camposVacios
         .map((c) => c.placeholder || c.name)
         .join(", ");
@@ -148,8 +157,8 @@ export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
       return;
     }
 
-    const correo = formData["correoInstitucional"];
-    if (!correo.endsWith("@soy.sena.edu.co")) {
+    if (!formData["correoInstitucional"]?.endsWith("@soy.sena.edu.co")) {
+      setErroresCampos({ correoInstitucional: true });
       Alert.alert(
         "Correo institucional inválido",
         "El correo institucional debe tener la estructura: nombre@soy.sena.edu.co"
@@ -157,10 +166,11 @@ export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
       return;
     }
 
-    const contrasena = formData["contrasena"];
-    const repetirContrasena = formData["repetirContrasena"];
-
-    if (contrasena !== repetirContrasena) {
+    if (formData["contrasena"] !== formData["repetirContrasena"]) {
+      setErroresCampos({
+        contrasena: true,
+        repetirContrasena: true,
+      });
       Alert.alert(
         "Contraseñas no coinciden",
         "Las contraseñas ingresadas no son iguales."
@@ -168,15 +178,25 @@ export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
       return;
     }
 
-    // Aquí se simula el envío de datos
+    setErroresCampos({}); // Si todo está bien, limpiamos errores
     setGuardando(true);
-    setTimeout(() => {
-      setGuardando(false);
-      Alert.alert("✅ Datos guardados exitosamente");
-      onSubmit(formData);
-      navigation.replace("Login"); //Redirigir a la pantalla de login
-    }, 3000);
-  };
+    
+    // Mostrar alerta de éxito
+  Alert.alert("✅ Datos guardados con éxito", "Tu información ha sido registrada correctamente.", [
+    {
+      text: "OK",
+      onPress: () => {
+        // Navegar a la pantalla Splash después de cerrar el Alert
+        navigation.navigate("Splash", {
+          message: "Guardando información...", // Mensaje personalizado
+          autoNavigate: true,
+          duration: 3000,
+          nextScreen: "Login", // Redirigir a Login después de la SplashScreen
+        });
+      },
+    },
+  ]);
+};
 
   const renderSeccion = (tituloSeccion, icono, camposSeccion) => (
     <View style={styles.seccionContainer} key={tituloSeccion}>
@@ -200,11 +220,27 @@ export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
                 : setIsRepeatPasswordVisible(!isRepeatPasswordVisible);
 
             return (
-              <View key={campo.name} style={styles.inputPasswordContainer}>
+              <View
+                key={campo.name}
+                style={[
+                  styles.inputPasswordContainer,
+                  erroresCampos[campo.name] && {
+                    borderColor: "red",
+                    borderWidth: 1,
+                    borderRadius: 10,
+                  },
+                ]}
+              >
                 <TextInput
                   style={styles.inputPassword}
                   placeholder={campo.placeholder}
-                  onChangeText={(text) => handleChange(campo.name, text)}
+                  onChangeText={(text) => {
+                    handleChange(campo.name, text);
+                    setErroresCampos((prev) => ({
+                      ...prev,
+                      [campo.name]: false,
+                    }));
+                  }}
                   secureTextEntry={!isVisible}
                 />
                 <TouchableOpacity onPress={toggleVisibility}>
@@ -220,7 +256,17 @@ export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
 
           if (campo.name === "departamento") {
             return (
-              <View key={campo.name} style={styles.pickerContainer}>
+              <View
+                key={campo.name}
+                style={[
+                  styles.pickerContainer,
+                  erroresCampos[campo.name] && {
+                    borderColor: "red",
+                    borderWidth: 1,
+                    borderRadius: 10,
+                  },
+                ]}
+              >
                 <Text style={styles.label}>
                   Selecciona tu departamento de residencia:
                 </Text>
@@ -229,7 +275,13 @@ export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
                 ) : (
                   <Picker
                     selectedValue={formData[campo.name] || ""}
-                    onValueChange={(value) => handleDepartamentoChange(value)}
+                    onValueChange={(value) => {
+                      handleDepartamentoChange(value);
+                      setErroresCampos((prev) => ({
+                        ...prev,
+                        [campo.name]: false,
+                      }));
+                    }}
                   >
                     <Picker.Item label="Selecciona un departamento" value="" />
                     {departamentos.map((dept, index) => (
@@ -243,7 +295,17 @@ export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
 
           if (campo.name === "municipio") {
             return (
-              <View key={campo.name} style={styles.pickerContainer}>
+              <View
+                key={campo.name}
+                style={[
+                  styles.pickerContainer,
+                  erroresCampos[campo.name] && {
+                    borderColor: "red",
+                    borderWidth: 1,
+                    borderRadius: 10,
+                  },
+                ]}
+              >
                 <Text style={styles.label}>
                   Selecciona tu municipio de residencia:
                 </Text>
@@ -252,7 +314,13 @@ export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
                 ) : (
                   <Picker
                     selectedValue={formData[campo.name] || ""}
-                    onValueChange={(value) => handleChange(campo.name, value)}
+                    onValueChange={(value) => {
+                      handleChange(campo.name, value);
+                      setErroresCampos((prev) => ({
+                        ...prev,
+                        [campo.name]: false,
+                      }));
+                    }}
                     enabled={municipios.length > 0}
                   >
                     <Picker.Item label="Selecciona un municipio" value="" />
@@ -267,7 +335,17 @@ export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
 
           if (campo.type === "picker") {
             return (
-              <View key={campo.name} style={styles.pickerContainer}>
+              <View
+                key={campo.name}
+                style={[
+                  styles.pickerContainer,
+                  erroresCampos[campo.name] && {
+                    borderColor: "red",
+                    borderWidth: 1,
+                    borderRadius: 10,
+                  },
+                ]}
+              >
                 <Text style={styles.label}>
                   {(() => {
                     switch (campo.name) {
@@ -286,7 +364,13 @@ export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
                 </Text>
                 <Picker
                   selectedValue={formData[campo.name] || ""}
-                  onValueChange={(value) => handleChange(campo.name, value)}
+                  onValueChange={(value) => {
+                    handleChange(campo.name, value);
+                    setErroresCampos((prev) => ({
+                      ...prev,
+                      [campo.name]: false,
+                    }));
+                  }}
                 >
                   <Picker.Item
                     label={`Selecciona ${campo.placeholder.toLowerCase()}`}
@@ -303,9 +387,15 @@ export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
           return (
             <TextInput
               key={campo.name}
-              style={styles.input}
+              style={[
+                styles.input,
+                erroresCampos[campo.name] && { borderColor: "red" },
+              ]}
               placeholder={campo.placeholder}
-              onChangeText={(text) => handleChange(campo.name, text)}
+              onChangeText={(text) => {
+                handleChange(campo.name, text);
+                setErroresCampos((prev) => ({ ...prev, [campo.name]: false }));
+              }}
               secureTextEntry={campo.secureTextEntry || false}
               keyboardType={campo.keyboardType || "default"}
             />
@@ -348,11 +438,6 @@ export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
     (c) => !camposUsuario.includes(c) && !camposPersonales.includes(c)
   );
 
-  if (guardando) {
-    return (
-      <SplashScreen message="Guardando información..." autoNavigate={false} />
-    );
-  }
 
   return (
     <KeyboardAvoidingView
@@ -361,7 +446,6 @@ export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
     >
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.container}>
-
           {renderSeccion("Información del Usuario", "👤", camposUsuario)}
           {renderSeccion("Información Personal", "📄", camposPersonales)}
 

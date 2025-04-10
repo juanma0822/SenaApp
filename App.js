@@ -60,7 +60,7 @@ function RootStack() {
         component={SplashScreen}
         options={{ headerShown: false }}
         screenOptions={{
-          headerShown: true,
+          headerShown: false,
           animation: 'fade',
         }}
       />
@@ -85,7 +85,7 @@ function RootStack() {
         options={{
           title: "Registro Aprendiz",
           headerStyle: {
-            backgroundColor: "#FFFFFFF", // Fondo verde institucional
+            backgroundColor: "#00AF00", // Fondo verde institucional
           },
           headerTintColor: "#FFFFFF", // Botón de retroceso en blanco
           headerTitleStyle: {

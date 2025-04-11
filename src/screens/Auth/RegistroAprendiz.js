@@ -1,8 +1,8 @@
 import React from "react";
-import RegistroForm from "../components/RegistroForm";
-import WaveBackground from '../components/WaveBackground';
+import RegistroForm from "../../components/RegistroForm";
+import WaveBackground from '../../components/WaveBackground';
 import {Text} from 'react-native';
-import { camposGenerales } from "../components/forms/camposGenerales";
+import { camposGenerales } from "../../components/forms/camposGenerales";
 
 export default function RegistroAprendiz() {
   const camposAprendiz = [

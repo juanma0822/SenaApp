@@ -1,13 +1,19 @@
 import React from "react";
-import RegistroForm from "../components/RegistroForm";
-import WaveBackground from "../components/WaveBackground";
+import RegistroForm from "../../components/RegistroForm";
+import WaveBackground from "../../components/WaveBackground";
 import { Text } from "react-native";
-import { camposGenerales } from "../components/forms/camposGenerales";
+import { camposGenerales } from "../../components/forms/camposGenerales";
 
 export default function RegistroFuncionario() {
   const camposFuncionario = [
     { name: "cargo", placeholder: "Cargo asignado" },
     { name: "area", placeholder: "Área de trabajo" },
+    {
+      name: "tipo_funcionario",
+      type: "picker",
+      placeholder: "Tipo de funcionario",
+      options: ["Contratista", "Planta"],
+    },
   ];
 
   const handleRegistro = (data) => {

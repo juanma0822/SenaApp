@@ -19,6 +19,7 @@ export const camposGenerales = [
     placeholder: "Repetir contraseña",
     secureTextEntry: true,
   },
+  { name: "fechaNacimiento", placeholder: "Fecha de nacimiento", type: "fechaCustom" },
   {
     name: "tipoDocumento",
     type: "picker",

@@ -44,7 +44,7 @@ export default function InstagramLogin() {
           {/* Logo Section */}
           <View style={styles.logoContainer}>
             <Image
-              source={require('../assets/logoSena.png')}
+              source={require('../../../assets/logoSena.png')}
               style={styles.logoImage}
             />
             <Text style={styles.logoText}>Registro Sena</Text>
@@ -105,7 +105,7 @@ export default function InstagramLogin() {
             {/* OR Divider */}
             <View style={styles.dividerContainer}>
               <View style={styles.divider} />
-              <Text style={styles.orText}>OR</Text>
+              <Text style={styles.orText}>O</Text>
               <View style={styles.divider} />
             </View>
 
@@ -131,7 +131,7 @@ export default function InstagramLogin() {
               <Text style={styles.footerLink}>Acerca de</Text>
             </TouchableOpacity>
             <Text style={styles.dotSeparator}>•</Text>
-            <TouchableOpacity onPress={() => handleLinkPress('http://senasofiaplus.edu.co/sofia-public/')}>
+            <TouchableOpacity onPress={() => handleLinkPress('https://oferta.senasofiaplus.edu.co/sofia-oferta/')}>
               <Text style={styles.footerLink}>Sofia Plus</Text>
             </TouchableOpacity>
             <Text style={styles.dotSeparator}>•</Text>

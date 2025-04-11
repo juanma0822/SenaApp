@@ -15,6 +15,9 @@ import { Picker } from "@react-native-picker/picker";
 import Icon from "react-native-vector-icons/Ionicons";
 import SplashScreen from "../screens/SplashScreen";
 import { useNavigation } from "@react-navigation/native";
+import RNPickerSelect from 'react-native-picker-select';
+
+
 
 export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
   const navigation = useNavigation();
@@ -28,6 +31,28 @@ export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
   const [guardando, setGuardando] = useState(false);
   //Manejador de errores
   const [erroresCampos, setErroresCampos] = useState({});
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+
+const showDatePicker = () => {
+  setDatePickerVisibility(true);
+};
+
+const hideDatePicker = () => {
+  setDatePickerVisibility(false);
+};
+
+const handleConfirm = (date) => {
+  const dia = date.getDate().toString().padStart(2, '0');
+  const mes = date.toLocaleString('es-ES', { month: 'long' });
+  const anio = date.getFullYear().toString();
+
+  handleChange('diaNacimiento', dia);
+  handleChange('mesNacimiento', mes);
+  handleChange('anioNacimiento', anio);
+
+  hideDatePicker();
+};
+
 
   //Obtener la lista de los departamentos al momento de cargarse el componente
   useEffect(() => {
@@ -178,25 +203,43 @@ export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
       return;
     }
 
+    // VALIDACIÓN DE FECHA NACIMIENTO
+    if (!formData.diaNacimiento || !formData.mesNacimiento || !formData.anioNacimiento) {
+      Alert.alert(
+        "Fecha incompleta",
+        "Por favor completa tu fecha de nacimiento: día, mes y año."
+      );
+      return;
+    }
+
+    const fechaNacimiento = `${formData.diaNacimiento}/${formData.mesNacimiento}/${formData.anioNacimiento}`;
+
     setErroresCampos({}); // Si todo está bien, limpiamos errores
     setGuardando(true);
+
+    const datosFinales = {
+      ...formData,
+      fechaNacimiento, // le paso la fecha armada
+    };
+  
+    console.log("Datos a enviar:", datosFinales); // solo para pruebas
     
     // Mostrar alerta de éxito
-  Alert.alert("✅ Datos guardados con éxito", "Tu información ha sido registrada correctamente.", [
-    {
-      text: "OK",
-      onPress: () => {
-        // Navegar a la pantalla Splash después de cerrar el Alert
-        navigation.navigate("Splash", {
-          message: "Guardando información...", // Mensaje personalizado
-          autoNavigate: true,
-          duration: 3000,
-          nextScreen: "Login", // Redirigir a Login después de la SplashScreen
-        });
+    Alert.alert("✅ Datos guardados con éxito", "Tu información ha sido registrada correctamente.", [
+      {
+        text: "OK",
+        onPress: () => {
+          // Navegar a la pantalla Splash después de cerrar el Alert
+          navigation.navigate("Splash", {
+            message: "Guardando información...", // Mensaje personalizado
+            autoNavigate: true,
+            duration: 3000,
+            nextScreen: "Login", // Redirigir a Login después de la SplashScreen
+          });
+        },
       },
-    },
-  ]);
-};
+    ]);
+  };
 
   const renderSeccion = (tituloSeccion, icono, camposSeccion) => (
     <View style={styles.seccionContainer} key={tituloSeccion}>
@@ -206,6 +249,95 @@ export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
       </View>
       <View style={styles.card}>
         {camposSeccion.map((campo) => {
+
+        //Para los campos de fecha de nacimiento
+        if (campo.type === "fechaCustom") {
+          return (
+            <View key={campo.name} style={{ marginBottom: 15 }}>
+              <Text style={styles.label}>Fecha de Nacimiento:</Text>
+
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                {/* Día */}
+                <TextInput
+                  style={[styles.input, { width: '30%' }]}
+                  placeholder="Día"
+                  keyboardType="numeric"
+                  maxLength={2}
+                  onChangeText={(text) => handleChange('diaNacimiento', text)}
+                  value={formData.diaNacimiento || ""}
+                />
+
+                {/* Mes */}
+                <View style={{ width: '30%', position: 'relative' }}>
+                  <RNPickerSelect
+                    onValueChange={(value) => handleChange('mesNacimiento', value)}
+                    placeholder={{ label: 'Mes', value: '' }}
+                    items={[
+                      { label: 'Enero', value: 'Enero' },
+                      { label: 'Febrero', value: 'Febrero' },
+                      { label: 'Marzo', value: 'Marzo' },
+                      { label: 'Abril', value: 'Abril' },
+                      { label: 'Mayo', value: 'Mayo' },
+                      { label: 'Junio', value: 'Junio' },
+                      { label: 'Julio', value: 'Julio' },
+                      { label: 'Agosto', value: 'Agosto' },
+                      { label: 'Septiembre', value: 'Septiembre' },
+                      { label: 'Octubre', value: 'Octubre' },
+                      { label: 'Noviembre', value: 'Noviembre' },
+                      { label: 'Diciembre', value: 'Diciembre' },
+                    ]}
+                    value={formData.mesNacimiento || ""}
+                    style={{
+                      inputIOS: {
+                        height: 50,
+                        borderColor: '#00AF00',
+                        borderWidth: 1,
+                        borderRadius: 8,
+                        paddingHorizontal: 10,
+                        width: '100%',
+                        justifyContent: 'center',
+                        textAlign: 'center',
+                        paddingRight: 25, // espacio para la flecha
+                      },
+                      inputAndroid: {
+                        height: 50,
+                        borderColor: '#00AF00',
+                        borderWidth: 1,
+                        borderRadius: 8,
+                        paddingHorizontal: 10,
+                        width: '100%',
+                        justifyContent: 'center',
+                        textAlign: 'center',
+                        paddingRight: 25, // espacio para la flecha
+                      },
+                      iconContainer: {
+                        top: 18,
+                        right: 10,
+                        position: 'absolute',
+                      },
+                    }}
+                    useNativeAndroidPickerStyle={false}
+                    Icon={() => <Icon name="chevron-down-outline" size={20} color="#00AF00" />}
+                  />
+                </View>
+
+
+
+                {/* Año */}
+                <TextInput
+                  style={[styles.input, { width: '30%' }]}
+                  placeholder="Año"
+                  keyboardType="numeric"
+                  maxLength={4}
+                  onChangeText={(text) => handleChange('anioNacimiento', text)}
+                  value={formData.anioNacimiento || ""}
+                />
+              </View>
+            </View>
+          );
+        }
+
+        //Para mostrar los campos de contraseña, repetir contraseña
           if (
             campo.name === "contrasena" ||
             campo.name === "repetirContrasena"
@@ -253,7 +385,7 @@ export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
               </View>
             );
           }
-
+          //Para la personalización de los departamentos - consumo de API
           if (campo.name === "departamento") {
             return (
               <View
@@ -292,7 +424,7 @@ export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
               </View>
             );
           }
-
+          //Para personalización de municipios - consumo de API
           if (campo.name === "municipio") {
             return (
               <View
@@ -332,7 +464,7 @@ export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
               </View>
             );
           }
-
+          //Para los campos que son PICKER-SELECT
           if (campo.type === "picker") {
             return (
               <View
@@ -419,6 +551,7 @@ export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
 
   const camposPersonales = campos.filter((c) =>
     [
+      "fechaNacimiento",
       "tipoDocumento",
       "numeroDocumento",
       "lugarExpedicion",

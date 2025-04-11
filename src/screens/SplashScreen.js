@@ -30,7 +30,7 @@ export default function SplashScreen({
         animation="fadeIn"
         easing="ease-in-out"
         duration={1500}
-        source={require("../assets/LogoSenaWhite.png")}
+        source={require("../../assets/LogoSenaWhite.png")}
         style={[styles.logo, { transform: [{ scale: 0.95 }] }]}
         resizeMode="contain"
       />

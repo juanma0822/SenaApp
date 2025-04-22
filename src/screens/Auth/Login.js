@@ -14,6 +14,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import Svg, { Path } from 'react-native-svg';
+import Constants from 'expo-constants';
 
 export default function InstagramLogin() {
   const navigation = useNavigation();
@@ -28,6 +29,8 @@ export default function InstagramLogin() {
       return;
     }
     console.log('Logging in with:', username, password);
+    const backendUrl = Constants.expoConfig.extra.REACT_APP_BACKEND_URL;
+    console.log("Backend URL:", backendUrl);
     navigation.navigate('HomeTabs', { email: username, password }); // Navegar a HomeTabs con parámetros
   };
 
@@ -55,7 +58,7 @@ export default function InstagramLogin() {
             <View style={styles.inputContainer}>
               <TextInput
                 style={styles.input}
-                placeholder="Correo electrónico"
+                placeholder="Correo institucional"
                 placeholderTextColor="#666"
                 value={username}
                 onChangeText={setUsername}

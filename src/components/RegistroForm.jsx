@@ -13,7 +13,6 @@ import {
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import Icon from "react-native-vector-icons/Ionicons";
-import SplashScreen from "../screens/SplashScreen";
 import { useNavigation } from "@react-navigation/native";
 import RNPickerSelect from 'react-native-picker-select';
 
@@ -153,25 +152,35 @@ const handleConfirm = (date) => {
   };
 
   const handleChange = (name, value) => {
-    setFormData({ ...formData, [name]: value });
+    const updatedFormData = { ...formData, [name]: value };
+  
+    // Construir la fecha de nacimiento si los campos están completos
+    if (
+      updatedFormData.diaNacimiento &&
+      updatedFormData.mesNacimiento &&
+      updatedFormData.anioNacimiento
+    ) {
+      updatedFormData.fechaNacimiento = `${updatedFormData.diaNacimiento}/${updatedFormData.mesNacimiento}/${updatedFormData.anioNacimiento}`;
+    }
+  
+    setFormData(updatedFormData);
   };
 
   // Manejo del evento de envío del formulario - VALIDAR QUE TODOS LOS DATOS SE ENVIEN EXCEPTO EL FIJO QUE ES OPCIONAL
   const handleSubmit = () => {
     const camposRequeridos = campos.filter((c) => c.name !== "telefonoFijo");
     const nuevosErrores = {};
-
     const camposVacios = camposRequeridos.filter(
       (c) => !formData[c.name] || formData[c.name].trim() === ""
     );
-
+  
     if (camposVacios.length > 0) {
       camposVacios.forEach((campo) => {
         nuevosErrores[campo.name] = true;
       });
-
+  
       setErroresCampos(nuevosErrores);
-
+  
       const nombresCampos = camposVacios
         .map((c) => c.placeholder || c.name)
         .join(", ");
@@ -181,7 +190,7 @@ const handleConfirm = (date) => {
       );
       return;
     }
-
+  
     if (!formData["correoInstitucional"]?.endsWith("@soy.sena.edu.co")) {
       setErroresCampos({ correoInstitucional: true });
       Alert.alert(
@@ -190,7 +199,7 @@ const handleConfirm = (date) => {
       );
       return;
     }
-
+  
     if (formData["contrasena"] !== formData["repetirContrasena"]) {
       setErroresCampos({
         contrasena: true,
@@ -202,8 +211,8 @@ const handleConfirm = (date) => {
       );
       return;
     }
-
-    // VALIDACIÓN DE FECHA NACIMIENTO
+  
+    // VALIDACIÓN DE FECHA NACIMIENTO (ahora ya está unida)
     if (!formData.diaNacimiento || !formData.mesNacimiento || !formData.anioNacimiento) {
       Alert.alert(
         "Fecha incompleta",
@@ -212,34 +221,17 @@ const handleConfirm = (date) => {
       return;
     }
 
-    const fechaNacimiento = `${formData.diaNacimiento}/${formData.mesNacimiento}/${formData.anioNacimiento}`;
-
     setErroresCampos({}); // Si todo está bien, limpiamos errores
     setGuardando(true);
-
+  
     const datosFinales = {
-      ...formData,
-      fechaNacimiento, // le paso la fecha armada
+      ...formData
     };
   
-    console.log("Datos a enviar:", datosFinales); // solo para pruebas
-    
-    // Mostrar alerta de éxito
-    Alert.alert("✅ Datos guardados con éxito", "Tu información ha sido registrada correctamente.", [
-      {
-        text: "OK",
-        onPress: () => {
-          // Navegar a la pantalla Splash después de cerrar el Alert
-          navigation.navigate("Splash", {
-            message: "Guardando información...", // Mensaje personalizado
-            autoNavigate: true,
-            duration: 3000,
-            nextScreen: "Login", // Redirigir a Login después de la SplashScreen
-          });
-        },
-      },
-    ]);
+    console.log("Datos a enviar:", datosFinales); // Solo para pruebas
+    onSubmit(datosFinales);
   };
+  
 
   const renderSeccion = (tituloSeccion, icono, camposSeccion) => (
     <View style={styles.seccionContainer} key={tituloSeccion}>

@@ -20,6 +20,9 @@
         "foregroundImage": "./assets/logoSena.png",
         "backgroundColor": "#ffffff"
       }
+    },
+    "extra": {
+      "REACT_APP_BACKEND_URL": "https://sena-backend-v5t4.onrender.com"
     }
   }
 }

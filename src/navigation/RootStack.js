@@ -5,6 +5,8 @@ import RegistrationScreen from "../screens/Auth/Registration";
 import RegistroAprendiz from "../screens/Auth/RegistroAprendiz";
 import RegistroFuncionario from "../screens/Auth/RegistroFuncionario";
 import HomeTabs from "./HomeTabs";
+import AprendizFuncionarioTabs from "./AprendizFuncionarioTabs";
+import GuardaTabs from "./GuardaTabs";
 
 const Stack = createNativeStackNavigator();
 
@@ -21,6 +23,19 @@ export default function RootStack() {
         component={LoginScreen}
         options={{ headerShown: false }}
       />
+
+      <Stack.Screen
+        name="AprendizFuncionarioTabs"
+        component={AprendizFuncionarioTabs}
+        options={{ headerShown: false }}
+      />
+
+      <Stack.Screen
+        name="GuardaTabs"
+        component={GuardaTabs}
+        options={{ headerShown: false }}
+      />
+
       <Stack.Screen
         name="HomeTabs"
         component={HomeTabs}

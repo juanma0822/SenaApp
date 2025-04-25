@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
     width: 75,
     height: 75,
     borderRadius: 37.5, // Circular
-    backgroundColor: "#00AF00",
+    backgroundColor: "#0e7e0e",
     justifyContent: "center",
     alignItems: "center",
     shadowColor: "#000",

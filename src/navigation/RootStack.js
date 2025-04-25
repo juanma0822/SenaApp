@@ -7,12 +7,14 @@ import RegistroFuncionario from "../screens/Auth/RegistroFuncionario";
 import HomeTabs from "./HomeTabs";
 import AprendizFuncionarioTabs from "./AprendizFuncionarioTabs";
 import GuardaTabs from "./GuardaTabs";
+import EscanearQR from "../screens/Home/EscanearQR";
+import Home from "../screens/Home/Home";
 
 const Stack = createNativeStackNavigator();
 
-export default function RootStack() {
+export default function RootStack({ initialRouteName = "Splash" }) {
   return (
-    <Stack.Navigator initialRouteName="Splash">
+    <Stack.Navigator initialRouteName={initialRouteName}>
       <Stack.Screen
         name="Splash"
         component={SplashScreen}
@@ -22,6 +24,20 @@ export default function RootStack() {
         name="Login"
         component={LoginScreen}
         options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Home"
+        component={Home}
+        options={{
+          title: "Registro de Ingreso",
+          headerStyle: {
+            backgroundColor: "#00AF00", // Fondo verde institucional
+          },
+          headerTintColor: "#FFFFFF", // Botón de retroceso en blanco
+          headerTitleStyle: {
+            fontWeight: "bold", // Texto del título en negrita
+          },
+        }}
       />
 
       <Stack.Screen
@@ -41,6 +57,13 @@ export default function RootStack() {
         component={HomeTabs}
         options={{ headerShown: false }}
       />
+
+      <Stack.Screen
+        name="EscanearQR"
+        component={EscanearQR}
+        options={{ headerShown: false }}
+      />
+
       <Stack.Screen
         name="Registration"
         component={RegistrationScreen}

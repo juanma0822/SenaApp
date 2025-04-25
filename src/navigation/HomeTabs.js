@@ -11,7 +11,7 @@ export default function HomeTabs({ route }) {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        headerShown: false,
+        headerShown: true,
         tabBarStyle: { backgroundColor: '#00AF00', borderTopWidth: 0 },
         tabBarActiveTintColor: '#FFFFFF',
         tabBarInactiveTintColor: '#B7B021',
@@ -21,7 +21,21 @@ export default function HomeTabs({ route }) {
         },
       })}
     >
-      <Tab.Screen name="Home" component={HomeScreen} initialParams={{ email, password }} />
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        initialParams={{ email, password }}
+        options={{
+          title: 'Registro de Ingreso', // Título del encabezado
+          headerStyle: {
+            backgroundColor: '#00AF00', // Fondo verde institucional
+          },
+          headerTintColor: '#FFFFFF', // Botón de retroceso en blanco
+          headerTitleStyle: {
+            fontWeight: 'bold', // Texto del título en negrita
+          },
+        }}
+      />
       <Tab.Screen name="Registration" component={RegistrationScreen} />
     </Tab.Navigator>
   );

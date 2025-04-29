@@ -4,8 +4,9 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { StyleSheet, ActivityIndicator, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import jwtDecode from "jwt-decode";
+import jwtDecode from "jwt-decode"; // Asegúrate de que este import sea correcto
 import RootStack from "./navigation/RootStack";
+import { Toaster } from "sonner-native";
 
 export default function App() {
   const [initialRoute, setInitialRoute] = useState(null); // Controla la ruta inicial
@@ -16,21 +17,26 @@ export default function App() {
       try {
         const token = await AsyncStorage.getItem("token");
         if (token) {
-          const decoded = jwtDecode(token);
-          const currentTime = Date.now() / 1000; // Tiempo actual en segundos
+          try {
+            const decoded = jwtDecode(token); // Decodifica el token
+            const currentTime = Date.now() / 1000; // Tiempo actual en segundos
 
-          if (decoded.exp > currentTime) {
-            // Token válido, redirigir según el rol
-            if (decoded.rol === "aprendiz" || decoded.rol === "funcionario") {
-              setInitialRoute("AprendizFuncionarioTabs");
-            } else if (decoded.rol === "guarda") {
-              setInitialRoute("GuardaTabs");
+            if (decoded.exp > currentTime) {
+              // Token válido, redirigir según el rol
+              if (decoded.rol === "aprendiz" || decoded.rol === "funcionario") {
+                setInitialRoute("AprendizFuncionarioTabs");
+              } else if (decoded.rol === "guarda") {
+                setInitialRoute("GuardaTabs");
+              } else {
+                setInitialRoute("Login"); // Rol no reconocido
+              }
             } else {
-              setInitialRoute("Login"); // Rol no reconocido
+              // Token expirado, eliminarlo
+              await AsyncStorage.removeItem("token");
+              setInitialRoute("Login");
             }
-          } else {
-            // Token expirado, eliminarlo
-            await AsyncStorage.removeItem("token");
+          } catch (decodeError) {
+            console.error("Error al decodificar el token:", decodeError);
             setInitialRoute("Login");
           }
         } else {

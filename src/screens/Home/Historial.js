@@ -18,7 +18,9 @@ const TAB_BAR_HEIGHT = 90; // Altura de la barra de navegación
 
 export default function Historial({ navigation }) {
   const [historicalData, setHistoricalData] = useState([]);
+  const [dailySummary, setDailySummary] = useState([]);
   const [isDailyHistory, setIsDailyHistory] = useState(true);
+  const [showSummary, setShowSummary] = useState(false);
 
   useEffect(() => {
     fetchHistoricalData();
@@ -41,6 +43,28 @@ export default function Historial({ navigation }) {
     } catch (error) {
       console.error("Error fetching historical data:", error);
     }
+  };
+
+  const fetchDailySummary = async () => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      const baseUrl = Constants.expoConfig.extra.REACT_APP_BACKEND_URL;
+      const response = await axios.get(`${baseUrl}/api/ingresos/resumen-dia`, { headers });
+      setDailySummary(response.data || []); // Guardar el resumen diario
+    } catch (error) {
+      console.error("Error fetching daily summary:", error);
+    }
+  };
+
+  const toggleSummary = () => {
+    if (!showSummary) {
+      fetchDailySummary(); // Cargar el resumen diario si no se ha mostrado antes
+    }
+    setShowSummary(!showSummary); // Alternar la visibilidad del resumen
   };
 
   return (
@@ -76,6 +100,49 @@ export default function Historial({ navigation }) {
               <Text style={styles.noDataText}>No hay datos disponibles</Text>
             )}
           </ScrollView>
+
+          {/* Botón para mostrar/ocultar resumen diario */}
+          <TouchableOpacity style={styles.summaryButton} onPress={toggleSummary}>
+            <Text style={styles.summaryButtonText}>
+              {showSummary ? "Ocultar Resumen Diario" : "Mostrar Resumen Diario"}
+            </Text>
+          </TouchableOpacity>
+
+          {/* Resumen diario */}
+          {showSummary && (
+            <ScrollView style={styles.summaryScrollContainer}>
+              <View style={styles.summaryContainer}>
+                {dailySummary.length > 0 ? (
+                  dailySummary.map((summary, index) => (
+                    <View key={index} style={styles.summaryCard}>
+                      <Text style={styles.summaryText}>
+                        <Text style={styles.summaryLabel}>Fecha: </Text>
+                        {summary.fecha}
+                      </Text>
+                      <Text style={styles.summaryText}>
+                        <Text style={styles.summaryLabel}>Primer Ingreso: </Text>
+                        {new Date(summary.primer_ingreso).toLocaleTimeString()}
+                      </Text>
+                      <Text style={styles.summaryText}>
+                        <Text style={styles.summaryLabel}>Última Salida: </Text>
+                        {new Date(summary.ultima_salida).toLocaleTimeString()}
+                      </Text>
+                      <Text style={styles.summaryText}>
+                        <Text style={styles.summaryLabel}>Total Entradas: </Text>
+                        {summary.total_entradas}
+                      </Text>
+                      <Text style={styles.summaryText}>
+                        <Text style={styles.summaryLabel}>Total Salidas: </Text>
+                        {summary.total_salidas}
+                      </Text>
+                    </View>
+                  ))
+                ) : (
+                  <Text style={styles.noDataText}>No hay resumen diario disponible</Text>
+                )}
+              </View>
+            </ScrollView>
+          )}
         </View>
       </View>
     </SafeAreaView>
@@ -151,5 +218,46 @@ const styles = StyleSheet.create({
     color: "#555",
     textAlign: "center",
     marginTop: 20,
+  },
+  summaryButton: {
+    backgroundColor: "#008000",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginTop: 20,
+  },
+  summaryButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  summaryScrollContainer: {
+    maxHeight: 200, // Limitar la altura del resumen diario para que sea desplazable
+    marginTop: 20,
+    width: "100%",
+  },
+  summaryContainer: {
+    paddingHorizontal: 10,
+  },
+  summaryCard: {
+    backgroundColor: "#F5F5F5",
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  summaryText: {
+    fontSize: 14,
+    color: "#333",
+    marginBottom: 5,
+  },
+  summaryLabel: {
+    fontWeight: "bold",
+    color: "#555",
   },
 });

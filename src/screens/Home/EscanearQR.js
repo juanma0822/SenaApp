@@ -1,30 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Alert, Dimensions, ActivityIndicator } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as Location from 'expo-location';
 import { getDistance } from 'geolib';
+import axios from 'axios';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import Constants from "expo-constants";
 
 const validQRCode = 'QR-ACCESS-EDU-123456-VALID';
 const validExitQRCode = 'QR-ACCESS-EDU-123456-EXIT';
 const validCoords = { latitude: 4.086601, longitude: -76.197253 };
 const radius = 100;
 
+const { width } = Dimensions.get('window');
+const FRAME_SIZE = width * 0.7;
+
 export default function EscanearQR({ route, navigation }) {
   const { tipo } = route.params; // 'ingreso' o 'salida'
 
   const [permission, requestPermission] = useCameraPermissions();
-  const [scanned, setScanned] = useState(false);
-  const [cameraActive, setCameraActive] = useState(true); // Controlar si la cámara está activa
-  const [cameraUnmounted, setCameraUnmounted] = useState(false); // Desmontar la cámara después de un escaneo exitoso
+  const [scanned, setScanned] = useState(false); // Controlar si el lector de QR está activo
+  const [isProcessing, setIsProcessing] = useState(false); // Controlar el proceso de POST
 
   useEffect(() => {
     requestPermission();
   }, []);
 
   const handleBarcodeScanned = async ({ data }) => {
-    if (!scanned) {
-      setScanned(true); // Deshabilitar el escaneo
-      setCameraActive(false); // Pausar la cámara
+    if (!scanned && !isProcessing) {
+      setScanned(true); // Deshabilitar el lector de QR
+      setIsProcessing(true); // Marcar que estamos procesando
 
       const isValidQR = tipo === 'ingreso'
         ? data.trim() === validQRCode.trim()
@@ -32,34 +37,54 @@ export default function EscanearQR({ route, navigation }) {
 
       if (isValidQR) {
         const userLocation = await getUserLocation();
-        console.log(userLocation);
         if (userLocation && isValidLocation(userLocation.coords)) {
-          setCameraUnmounted(true); // Desmontar la cámara
-          resetScanner();
-          Alert.alert(
-            tipo === 'ingreso' ? 'Ingreso exitoso' : 'Salida exitosa',
-            `Código escaneado correctamente`,
-            [
-              {
-                text: 'OK',
-                onPress: () => navigation.goBack(), // Regresar a la pantalla anterior
-              },
-            ]
-          );
+          try {
+            const token = await AsyncStorage.getItem('token'); // Obtener el token del AsyncStorage
+            const headers = {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            };
+
+            const baseUrl = Constants.expoConfig.extra.REACT_APP_BACKEND_URL; // Asegúrate de que esta constante esté configurada
+            const tipoIngreso = tipo === 'ingreso' ? 'entrada' : 'salida';
+
+            // Realizar la solicitud POST
+            const response = await axios.post(
+              `${baseUrl}/api/ingresos`,
+              { tipo_ingreso: tipoIngreso },
+              { headers }
+            );
+
+            if (response.status === 201) {
+              Alert.alert(
+                tipo === 'ingreso' ? 'Ingreso exitoso' : 'Salida exitosa',
+                `Registro realizado correctamente`,
+                [
+                  {
+                    text: 'OK',
+                    onPress: () => navigation.goBack(), // Regresar a la pantalla anterior
+                  },
+                ]
+              );
+            }
+          } catch (error) {
+            console.error('Error al registrar el ingreso/salida:', error);
+            Alert.alert('Error', 'No se pudo registrar el ingreso/salida. Inténtalo de nuevo.');
+          }
         } else {
           Alert.alert('Error', 'Ubicación no válida');
-          setCameraUnmounted(true); // Desmontar la cámara
         }
       } else {
         Alert.alert('Error', 'Código QR incorrecto');
-        resetScanner();
       }
+
+      // Habilitar el botón "Reintentar escaneo" después del proceso
+      setIsProcessing(false); // Desbloquear proceso
     }
   };
 
   const resetScanner = () => {
-    setScanned(false); // Permitir escaneo nuevamente
-    setCameraActive(true); // Reactivar la cámara
+    setScanned(false); // Reactivar el lector de QR
   };
 
   const getUserLocation = async () => {
@@ -77,6 +102,21 @@ export default function EscanearQR({ route, navigation }) {
     return distance <= radius;
   };
 
+  if (!permission) {
+    return <View />;
+  }
+
+  if (!permission.granted) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.permissionText}>Necesitamos tu permiso para usar la cámara</Text>
+        <TouchableOpacity style={styles.button} onPress={requestPermission}>
+          <Text style={styles.buttonText}>Conceder Permiso</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>
@@ -84,21 +124,33 @@ export default function EscanearQR({ route, navigation }) {
       </Text>
 
       <View style={styles.cameraContainer}>
-        {!cameraUnmounted && cameraActive && (
-          <CameraView
-            style={styles.camera}
-            barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
-            onBarcodeScanned={scanned ? undefined : handleBarcodeScanned} // Deshabilitar escaneo si ya se escaneó
-          />
-        )}
+        <CameraView
+          style={styles.camera}
+          barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
+          onBarcodeScanned={scanned || isProcessing ? undefined : handleBarcodeScanned} // Deshabilitar escaneo si ya se escaneó o está procesando
+        >
+          <View style={styles.overlay}>
+            <View style={styles.scanFrame} />
+            {isProcessing && (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#25D366" />
+                <Text style={styles.loadingText}>Procesando...</Text>
+              </View>
+            )}
+          </View>
+        </CameraView>
       </View>
 
-      {scanned && !cameraUnmounted && (
+      <Text style={styles.instructionText}>
+        Alinea el código QR dentro del marco
+      </Text>
+
+      {scanned && (
         <TouchableOpacity
           style={styles.rescanButton}
           onPress={resetScanner} // Permitir reintentar el escaneo
         >
-          <Text style={styles.rescanText}>🔄 Reintentar escaneo</Text>
+          <Text style={styles.rescanText}> Reintentar escaneo</Text>
         </TouchableOpacity>
       )}
     </View>
@@ -108,35 +160,79 @@ export default function EscanearQR({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#00AF00',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#00AF00', // Fondo verde institucional
   },
   title: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: 'white',
+    color: '#ffffff',
     marginBottom: 20,
   },
   cameraContainer: {
-    width: 280,
-    height: 280,
-    borderWidth: 4,
-    borderColor: '#007F00', // Verde más oscuro
-    borderRadius: 10,
+    width: FRAME_SIZE,
+    height: FRAME_SIZE,
     overflow: 'hidden',
+    borderRadius: 12,
     marginBottom: 20,
   },
   camera: {
     flex: 1,
   },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  scanFrame: {
+    width: FRAME_SIZE - 40,
+    height: FRAME_SIZE - 40,
+    borderWidth: 2,
+    borderColor: '#ffffff',
+    borderRadius: 12,
+  },
+  loadingContainer: {
+    position: 'absolute',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    color: '#ffffff',
+    marginTop: 10,
+    fontSize: 16,
+  },
+  instructionText: {
+    color: '#ffffff',
+    opacity: 0.8,
+    marginTop: 20,
+    fontSize: 16,
+  },
   rescanButton: {
-    backgroundColor: '#fff',
+    backgroundColor: '#25D366',
+    paddingVertical: 12,
+    paddingHorizontal: 40,
+    borderRadius: 24,
+    marginTop: 20,
+  },
+  rescanText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  permissionText: {
+    color: '#ffffff',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  button: {
+    backgroundColor: '#25D366',
     padding: 12,
     borderRadius: 8,
   },
-  rescanText: {
-    color: '#00AF00',
-    fontWeight: 'bold',
+  buttonText: {
+    color: '#ffffff',
+    textAlign: 'center',
   },
 });

@@ -7,6 +7,7 @@ import RegistroFuncionario from "../screens/Auth/RegistroFuncionario";
 import HomeTabs from "./HomeTabs";
 import AprendizFuncionarioTabs from "./AprendizFuncionarioTabs";
 import GuardaTabs from "./GuardaTabs";
+import AdminTabs from "./AdminTabs";
 import EscanearQR from "../screens/Home/EscanearQR";
 import Home from "../screens/Home/Home";
 
@@ -47,14 +48,14 @@ export default function RootStack({ initialRouteName = "Splash" }) {
       />
 
       <Stack.Screen
-        name="GuardaTabs"
-        component={GuardaTabs}
+        name="AdminTabs"
+        component={AdminTabs}
         options={{ headerShown: false }}
       />
 
       <Stack.Screen
-        name="HomeTabs"
-        component={HomeTabs}
+        name="GuardaTabs"
+        component={GuardaTabs}
         options={{ headerShown: false }}
       />
 

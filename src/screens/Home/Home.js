@@ -75,7 +75,7 @@ export default function Home(props) {
           <TouchableOpacity
             style={styles.optionButton}
             onPress={() =>
-              props.navigation.navigate("EscanearQR", { tipo: "ingreso" })
+              props.navigation.navigate("EscanearQR", { tipo: 'entrada' })
             }
           >
             <FontAwesome
@@ -90,7 +90,7 @@ export default function Home(props) {
           <TouchableOpacity
             style={styles.optionButton}
             onPress={() =>
-              props.navigation.navigate("EscanearQR", { tipo: "salida" })
+              props.navigation.navigate("EscanearQR", { tipo: 'salida' })
             }
           >
             <FontAwesome

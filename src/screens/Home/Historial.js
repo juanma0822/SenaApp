@@ -71,46 +71,44 @@ export default function Historial({ navigation }) {
     <SafeAreaView style={styles.container}>
       {/* Fondo verde */}
       <View style={styles.background}>
-        {/* Card principal */}
-        <View style={styles.card}>
-          <Text style={styles.title}>Historial</Text>
-          <Text style={styles.description}>
-            Aquí podrás visualizar el historial de registros en la plataforma, tanto el histórico como el diario.
-          </Text>
-          <View style={styles.buttonsContainer}>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => setIsDailyHistory(true)}
-            >
-              <Text style={styles.buttonText}>Historial Diario</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => setIsDailyHistory(false)}
-            >
-              <Text style={styles.buttonText}>Historial Completo</Text>
-            </TouchableOpacity>
-          </View>
+        {/* Card principal con ScrollView */}
+        <ScrollView style={styles.scrollContainer}>
+          <View style={styles.card}>
+            <Text style={styles.title}>Historial</Text>
+            <Text style={styles.description}>
+              Aquí podrás visualizar el historial de registros en la plataforma, tanto el histórico como el diario.
+            </Text>
+            <View style={styles.buttonsContainer}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => setIsDailyHistory(true)}
+              >
+                <Text style={styles.buttonText}>Historial Diario</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => setIsDailyHistory(false)}
+              >
+                <Text style={styles.buttonText}>Historial Completo</Text>
+              </TouchableOpacity>
+            </View>
 
-          {/* Contenido desplazable */}
-          <ScrollView style={styles.scrollContainer}>
+            {/* Contenido desplazable */}
             {historicalData.length > 0 ? (
               <Timeline data={historicalData} />
             ) : (
               <Text style={styles.noDataText}>No hay datos disponibles</Text>
             )}
-          </ScrollView>
 
-          {/* Botón para mostrar/ocultar resumen diario */}
-          <TouchableOpacity style={styles.summaryButton} onPress={toggleSummary}>
-            <Text style={styles.summaryButtonText}>
-              {showSummary ? "Ocultar Resumen Diario" : "Mostrar Resumen Diario"}
-            </Text>
-          </TouchableOpacity>
+            {/* Botón para mostrar/ocultar resumen diario */}
+            <TouchableOpacity style={styles.summaryButton} onPress={toggleSummary}>
+              <Text style={styles.summaryButtonText}>
+                {showSummary ? "Ocultar Resumen Diario" : "Mostrar Resumen Diario"}
+              </Text>
+            </TouchableOpacity>
 
-          {/* Resumen diario */}
-          {showSummary && (
-            <ScrollView style={styles.summaryScrollContainer}>
+            {/* Resumen diario */}
+            {showSummary && (
               <View style={styles.summaryContainer}>
                 {dailySummary.length > 0 ? (
                   dailySummary.map((summary, index) => (
@@ -121,11 +119,19 @@ export default function Historial({ navigation }) {
                       </Text>
                       <Text style={styles.summaryText}>
                         <Text style={styles.summaryLabel}>Primer Ingreso: </Text>
-                        {new Date(summary.primer_ingreso).toLocaleTimeString()}
+                        {new Date(summary.primer_ingreso).toLocaleTimeString("es-CO", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: true,
+                        })}
                       </Text>
                       <Text style={styles.summaryText}>
                         <Text style={styles.summaryLabel}>Última Salida: </Text>
-                        {new Date(summary.ultima_salida).toLocaleTimeString()}
+                        {new Date(summary.ultima_salida).toLocaleTimeString("es-CO", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: true,
+                        })}
                       </Text>
                       <Text style={styles.summaryText}>
                         <Text style={styles.summaryLabel}>Total Entradas: </Text>
@@ -141,9 +147,9 @@ export default function Historial({ navigation }) {
                   <Text style={styles.noDataText}>No hay resumen diario disponible</Text>
                 )}
               </View>
-            </ScrollView>
-          )}
-        </View>
+            )}
+          </View>
+        </ScrollView>
       </View>
     </SafeAreaView>
   );
@@ -157,14 +163,18 @@ const styles = StyleSheet.create({
   background: {
     flex: 1,
     alignItems: "center",
-    justifyContent: "center", // Centrar el card en el espacio disponible
+    justifyContent: "flex-start", // Centrar el card en el espacio disponible
     padding: 20,
+    paddingTop: 50,
     paddingBottom: TAB_BAR_HEIGHT, // Ajustar el espacio para la barra de navegación
+  },
+  scrollContainer: {
+    flex: 1, // Hacer que todo el contenido sea desplazable
+    width: "100%",
   },
   card: {
     width: "100%",
     maxWidth: 500,
-    height: height - TAB_BAR_HEIGHT - 85, // Altura dinámica restando la barra de navegación y un margen adicional
     backgroundColor: "#FFFFFF", // Fondo blanco para el card
     borderRadius: 20, // Bordes redondeados
     padding: 20,
@@ -176,6 +186,7 @@ const styles = StyleSheet.create({
     elevation: 5, // Sombra para Android
     borderWidth: 4, // Grosor del borde
     borderColor: "#008000", // Color del borde
+    
   },
   title: {
     fontSize: 24,
@@ -208,11 +219,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
-  scrollContainer: {
-    flex: 1, // Hacer que el contenido sea desplazable
-    width: "100%",
-    marginTop: 10,
-  },
   noDataText: {
     fontSize: 16,
     color: "#555",
@@ -232,13 +238,9 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
   },
-  summaryScrollContainer: {
-    maxHeight: 200, // Limitar la altura del resumen diario para que sea desplazable
-    marginTop: 20,
-    width: "100%",
-  },
   summaryContainer: {
     paddingHorizontal: 10,
+    marginTop: 20,
   },
   summaryCard: {
     backgroundColor: "#F5F5F5",

@@ -21,6 +21,9 @@ const TAB_BAR_HEIGHT = 90; // Altura de la barra de navegación
 export default function ConfiguracionScreen({ navigation }) {
   const [userInfo, setUserInfo] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false); // Controlar si los campos son editables
+  const [password, setPassword] = useState(""); // Campo para la nueva contraseña
+  const [isSaving, setIsSaving] = useState(false); // Controlar el estado de guardado
 
   useEffect(() => {
     fetchUserInfo();
@@ -43,6 +46,87 @@ export default function ConfiguracionScreen({ navigation }) {
       console.error("Error al obtener la información del usuario:", error);
     } finally {
       setLoading(false); // Ocultar el indicador de carga
+    }
+  };
+
+  //Editar PERFIL
+  const toggleEdit = () => {
+    setIsEditing(!isEditing); // Alternar entre modo edición y vista
+  };
+
+  const saveChanges = async () => {
+    setIsSaving(true); // Mostrar indicador de guardado
+    try {
+      const token = await AsyncStorage.getItem("token");
+      console.log(token);
+      const headers = {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      };
+  
+      const baseUrl = Constants.expoConfig.extra.REACT_APP_BACKEND_URL;
+  
+      // Construir el cuerpo de la solicitud con los datos editados
+      const payload = {
+        nombres: userInfo.nombres,
+        apellidos: userInfo.apellidos,
+        correo_personal: userInfo.correo_personal,
+        correo_institucional: userInfo.correo_institucional, // Agregado
+        contrasena: password || "", // Solo enviar si se cambió
+        fecha_nacimiento: userInfo.fecha_nacimiento, // Agregado
+        tipo_documento: userInfo.tipo_documento,
+        lugar_expedicion: userInfo.lugar_expedicion,
+        genero: userInfo.genero,
+        edad: userInfo.edad,
+        departamento: userInfo.departamento,
+        municipio: userInfo.municipio,
+        direccion: userInfo.direccion,
+        celular: userInfo.celular,
+        telefono_fijo: userInfo.telefono_fijo,
+        ...(userInfo.rol === "aprendiz" && {
+          programa_formacion: userInfo.programa_formacion,
+          numero_ficha: userInfo.numero_ficha,
+          nivelSisben: userInfo.nivelsisben, // Corregido a camelCase
+          grupoSisben: userInfo.gruposisben, // Corregido a camelCase
+        }),
+        ...(userInfo.rol === "funcionario" && {
+          cargo: userInfo.cargo,
+          area_trabajo: userInfo.area_trabajo,
+          tipo_funcionario: userInfo.tipo_funcionario,
+        }),
+      };
+  
+      console.log("Payload para guardar cambios:", payload); // Verificar el payload antes de enviar
+  
+      const response = await axios.put(`${baseUrl}/api/usuarios/info`, payload, {
+        headers,
+      });
+  
+      // Mostrar mensaje del backend
+      Alert.alert("Éxito", response.data.message);
+  
+      // Actualizar la información del usuario con los datos devueltos
+      setUserInfo(response.data.usuario);
+      setIsEditing(false); // Salir del modo edición
+    } catch (error) {
+      console.error("Error al guardar los cambios:", error);
+      Alert.alert(
+        "Error",
+        "No se pudieron guardar los cambios. ¿Qué deseas hacer?",
+        [
+          {
+            text: "Reintentar",
+            onPress: saveChanges, // Reintentar guardar los cambios
+          },
+          {
+            text: "Salir de editar",
+            onPress: () => setIsEditing(false), // Salir del modo edición
+            style: "cancel",
+          },
+        ]
+      );
+    } finally {
+      setIsSaving(false); // Ocultar indicador de guardado
     }
   };
 
@@ -105,8 +189,19 @@ export default function ConfiguracionScreen({ navigation }) {
                 <Text style={styles.sectionTitle}>Información General</Text>
                 <DatoUsuario
                   label="Nombre"
-                  value={`${userInfo.nombres} ${userInfo.apellidos}`}
-                  editable={false}
+                  value={userInfo.nombres}
+                  editable={isEditing}
+                  onChangeText={(text) =>
+                    setUserInfo({ ...userInfo, nombres: text })
+                  }
+                />
+                <DatoUsuario
+                  label="Apellidos"
+                  value={userInfo.apellidos}
+                  editable={isEditing}
+                  onChangeText={(text) =>
+                    setUserInfo({ ...userInfo, apellidos: text })
+                  }
                 />
                 <DatoUsuario
                   label="Tipo de Documento"
@@ -121,12 +216,22 @@ export default function ConfiguracionScreen({ navigation }) {
                 <DatoUsuario
                   label="Correo Personal"
                   value={userInfo.correo_personal}
-                  editable={false}
+                  editable={isEditing}
+                  onChangeText={(text) =>
+                    setUserInfo({ ...userInfo, correo_personal: text })
+                  }
                 />
                 <DatoUsuario
                   label="Correo Institucional"
                   value={userInfo.correo_institucional}
                   editable={false}
+                />
+                <DatoUsuario
+                  label="Nueva Contraseña"
+                  value={password}
+                  editable={isEditing}
+                  onChangeText={setPassword}
+                  secureTextEntry={true} // Campo de tipo contraseña
                 />
                 <DatoUsuario label="Género" value={userInfo.genero} editable={false} />
                 <DatoUsuario label="Edad" value={`${userInfo.edad} años`} editable={false} />
@@ -158,12 +263,21 @@ export default function ConfiguracionScreen({ navigation }) {
                     <DatoUsuario
                       label="Programa de Formación"
                       value={userInfo.programa_formacion}
-                      editable={false}
+                      editable={isEditing}
+                      onChangeText={(text) =>
+                        setUserInfo({
+                          ...userInfo,
+                          programa_formacion: text,
+                        })
+                      }
                     />
                     <DatoUsuario
                       label="Número de Ficha"
                       value={userInfo.numero_ficha}
-                      editable={false}
+                      editable={isEditing}
+                      onChangeText={(text) =>
+                        setUserInfo({ ...userInfo, numero_ficha: text })
+                      }
                     />
                     <DatoUsuario
                       label="Nivel SISBEN"
@@ -187,12 +301,18 @@ export default function ConfiguracionScreen({ navigation }) {
                     <DatoUsuario
                       label="Cargo"
                       value={userInfo.cargo}
-                      editable={false}
+                      editable={isEditing}
+                      onChangeText={(text) =>
+                        setUserInfo({ ...userInfo, cargo: text })
+                      }
                     />
                     <DatoUsuario
                       label="Área de Trabajo"
                       value={userInfo.area_trabajo}
-                      editable={false}
+                      editable={isEditing}
+                      onChangeText={(text) =>
+                        setUserInfo({ ...userInfo, area_trabajo: text })
+                      }
                     />
                     <DatoUsuario
                       label="Tipo de Funcionario"
@@ -204,15 +324,26 @@ export default function ConfiguracionScreen({ navigation }) {
 
                 {/* Botones */}
                 <View style={styles.buttonsContainer}>
-                  <TouchableOpacity style={styles.editButton}>
-                    <Text style={styles.buttonText}>Editar Perfil Usuario</Text>
-                  </TouchableOpacity>
                   <TouchableOpacity
-                    style={styles.deactivateButton}
-                    onPress={confirmDeactivateAccount}
+                    style={styles.editButton}
+                    onPress={isEditing ? saveChanges : toggleEdit}
                   >
-                    <Text style={styles.buttonText}>Desactivar Cuenta</Text>
+                    {isSaving ? (
+                      <ActivityIndicator size="small" color="#fff" />
+                    ) : (
+                      <Text style={styles.buttonText}>
+                        {isEditing ? "Guardar Cambios" : "Editar Perfil Usuario"}
+                      </Text>
+                    )}
                   </TouchableOpacity>
+                  {!isEditing && (
+                    <TouchableOpacity
+                      style={styles.deactivateButton}
+                      onPress={confirmDeactivateAccount}
+                    >
+                      <Text style={styles.buttonText}>Desactivar Cuenta</Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
               </>
             ) : (

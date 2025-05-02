@@ -63,6 +63,12 @@ export default function InstagramLogin() {
           "Bienvenido vigilante a la aplicacion de registro SENA"
         );
         navigation.navigate("GuardaTabs", { usuario: decoded });
+      } else if (decoded.rol === "admin") {
+        Alert.alert(
+          "Ingreso exitoso",
+          "Bienvenido subdirector a la aplicacion de registro SENA"
+        );
+        navigation.navigate("AdminTabs", { usuario: decoded });
       } else {
         alert("Rol de usuario no reconocido");
       }

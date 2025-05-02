@@ -2,6 +2,18 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
 const Timeline = ({ data }) => {
+  const formatDateTime = (dateTime) => {
+    const date = new Date(dateTime);
+    return date.toLocaleString("es-CO", {
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true, // Formato de 12 horas con am/pm
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  };
+
   return (
     <View style={styles.timelineContainer}>
       {data.map((entry, index) => (
@@ -27,7 +39,7 @@ const Timeline = ({ data }) => {
             </Text>
           </View>
           <Text style={styles.entryText}>
-            Fecha y hora: {new Date(entry.fecha_hora).toLocaleString()}
+            Fecha y hora: {formatDateTime(entry.fecha_hora)}
           </Text>
         </View>
       ))}

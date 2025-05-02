@@ -27,6 +27,8 @@ export default function App() {
                 setInitialRoute("AprendizFuncionarioTabs");
               } else if (decoded.rol === "guarda") {
                 setInitialRoute("GuardaTabs");
+              } else if (decoded.rol === "admin") {
+                setInitialRoute("AdminTabs"); 
               } else {
                 setInitialRoute("Login"); // Rol no reconocido
               }

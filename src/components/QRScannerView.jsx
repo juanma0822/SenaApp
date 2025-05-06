@@ -1,37 +1,41 @@
-// src/components/QRScannerView.jsx
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native';
+import React from 'react';
+import { View, Text, ActivityIndicator, StyleSheet, Dimensions } from 'react-native';
 import { CameraView } from 'expo-camera';
 
-export default function QRScannerView({ onScanned, isProcessing, scanned, title }) {
-  const FRAME_SIZE = 280;
+const FRAME_SIZE = 280;
+const { width } = Dimensions.get('window');
 
+export default function QRScannerView({ onScanned, isProcessing, scanned, title }) {
   return (
-    <>
+    <View style={styles.wrapper}>
       <Text style={styles.title}>{title}</Text>
 
-      <View style={styles.cameraContainer}>
+      <View style={styles.cameraWrapper}>
         <CameraView
           style={styles.camera}
           barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
           onBarcodeScanned={scanned || isProcessing ? undefined : onScanned}
-        >
-          <View style={styles.overlay}>
-            <View style={styles.scanFrame} />
-            {isProcessing && (
-              <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#25D366" />
-                <Text style={styles.loadingText}>Procesando...</Text>
-              </View>
-            )}
-          </View>
-        </CameraView>
+        />
+        {/* Overlay por fuera del CameraView */}
+        <View style={styles.overlay}>
+          <View style={styles.scanFrame} />
+          {isProcessing && (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#25D366" />
+              <Text style={styles.loadingText}>Procesando...</Text>
+            </View>
+          )}
+        </View>
       </View>
-    </>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  wrapper: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
   title: {
     fontSize: 22,
     fontWeight: 'bold',
@@ -39,25 +43,29 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center',
   },
-  cameraContainer: {
-    width: 280,
-    height: 280,
-    overflow: 'hidden',
+  cameraWrapper: {
+    width: FRAME_SIZE,
+    height: FRAME_SIZE,
     borderRadius: 12,
-    marginBottom: 20,
+    overflow: 'hidden',
+    position: 'relative', // Importante para el overlay
   },
   camera: {
-    flex: 1,
+    width: '100%',
+    height: '100%',
   },
   overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: FRAME_SIZE,
+    height: FRAME_SIZE,
     justifyContent: 'center',
     alignItems: 'center',
   },
   scanFrame: {
-    width: 240,
-    height: 240,
+    width: FRAME_SIZE - 40,
+    height: FRAME_SIZE - 40,
     borderWidth: 2,
     borderColor: '#ffffff',
     borderRadius: 12,

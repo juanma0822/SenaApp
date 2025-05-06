@@ -19,7 +19,9 @@
     "axios": "^1.8.4",
     "dotenv": "^16.5.0",
     "expo": "^53.0.5",
+    "expo-av": "~15.1.4",
     "expo-camera": "~16.1.6",
+    "expo-haptics": "~14.1.4",
     "expo-linear-gradient": "~14.1.4",
     "expo-location": "~18.1.4",
     "expo-status-bar": "~2.2.3",
@@ -28,15 +30,14 @@
     "react": "19.0.0",
     "react-native": "0.79.2",
     "react-native-animatable": "^1.4.0",
+    "react-native-chart-kit": "^6.12.0",
     "react-native-gesture-handler": "~2.24.0",
     "react-native-picker-select": "^9.3.1",
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.10.0",
     "react-native-svg": "^15.11.2",
     "react-native-vector-icons": "^10.2.0",
-    "sonner-native": "^0.17.0",
-    "expo-haptics": "~14.1.4",
-    "expo-av": "~15.1.4"
+    "sonner-native": "^0.17.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

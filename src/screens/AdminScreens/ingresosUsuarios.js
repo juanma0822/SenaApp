@@ -157,17 +157,28 @@ export default function IngresosUsuarios() {
                   />
                 </View>
 
+
                 {/* Tipo */}
                 <Text style={styles.filtroLabel}>Filtrar por tipo:</Text>
-                <Picker
-                  selectedValue={tipoFiltro}
-                  style={styles.input}
-                  onValueChange={(itemValue) => setTipoFiltro(itemValue)}
+                <View style={styles.pickerContainer}>
+                  <Picker
+                    selectedValue={tipoFiltro}
+                    style={styles.picker}
+                    onValueChange={(itemValue) => setTipoFiltro(itemValue)}
+                  >
+                    <Picker.Item label="Todos" value="" />
+                    <Picker.Item label="Entrada" value="entrada" />
+                    <Picker.Item label="Salida" value="salida" />
+                  </Picker>
+                </View>
+
+                {/* Botón de limpiar */}
+                <TouchableOpacity
+                  style={styles.limpiarButton}
+                  onPress={limpiarFiltros}
                 >
-                  <Picker.Item label="Todos" value="" />
-                  <Picker.Item label="Entrada" value="entrada" />
-                  <Picker.Item label="Salida" value="salida" />
-                </Picker>
+                  <Text style={styles.limpiarButtonText}>Limpiar Filtros</Text>
+                </TouchableOpacity>
 
                 {/* Botón de limpiar */}
                 <TouchableOpacity
@@ -288,6 +299,19 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     width: "100%",
   },
+  pickerContainer: {
+    width: "100%",
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    marginBottom: 10, // Separar del botón de limpiar filtros
+    overflow: "hidden", // Asegura que el Picker no se desborde
+  },
+  picker: {
+    height: 48, // Altura consistente con los inputs
+    width: "100%",
+  },
   limpiarButton: {
     marginTop: 10,
     backgroundColor: "#FF5C5C",
@@ -298,7 +322,7 @@ const styles = StyleSheet.create({
   limpiarButtonText: {
     color: "#fff",
     fontWeight: "bold",
-  },  
+  },
   usuarioItem: {
     width: "100%",
     paddingVertical: 10,

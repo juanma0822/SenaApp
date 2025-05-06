@@ -5,40 +5,171 @@ import ConfiguracionScreen from "../screens/Home/Configuracion";
 import RegistroVisitantes from "../screens/Guarda/RegistroVisitantes";
 import Prestamos from "../screens/Guarda/Prestamos";
 import { FontAwesome5 } from "@expo/vector-icons";
+import React, { useState } from "react";
+import { View, TouchableOpacity, Animated, StyleSheet } from "react-native";
 
 const Tab = createBottomTabNavigator();
 
+function CustomTabBarButton({ children, onPress }) {
+  const [scale, setScale] = useState(new Animated.Value(1)); // Controla el tamaño del botón
+
+  const handlePressIn = () => {
+    // Escala el botón cuando es presionado
+    Animated.spring(scale, {
+      toValue: 1.2, // Agranda el botón
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    // Vuelve al tamaño original cuando se suelta
+    Animated.spring(scale, {
+      toValue: 1, // Tamaño normal
+      useNativeDriver: true,
+    }).start();
+  };
+
+  return (
+    <TouchableOpacity
+      style={styles.customButtonContainer}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      onPress={onPress}
+      activeOpacity={0.8}
+    >
+      <Animated.View style={[styles.customButton, { transform: [{ scale }] }]}>
+        {children}
+      </Animated.View>
+    </TouchableOpacity>
+  );
+}
+
 export default function GuardaTabs({ route }) {
-  const { email } = route.params;
+  const { usuario } = route.params;
 
   return (
     <Tab.Navigator
-      screenOptions={({ route }) => ({
+      screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#FFFFFF",
-        tabBarInactiveTintColor: "#B7B021",
-        tabBarStyle: { backgroundColor: "#00AF00" },
-        tabBarIcon: ({ color, size }) => {
-          let iconName;
-
-          switch (route.name) {
-            case "Home": iconName = "home"; break;
-            case "Visitantes": iconName = "user-friends"; break;
-            case "Prestamos": iconName = "toolbox"; break;
-            case "Historial": iconName = "history"; break;
-            case "Configuración": iconName = "cogs"; break;
-            default: iconName = "question";
-          }
-
-          return <FontAwesome5 name={iconName} size={size} color={color} />;
-        },
-      })}
+        tabBarShowLabel: false,
+        tabBarStyle: styles.tabBar,
+      }}
+      initialRouteName="Home"
     >
-      <Tab.Screen name="Home" component={HomeScreen} initialParams={{ email }} />
-      <Tab.Screen name="Visitantes" component={RegistroVisitantes} />
-      <Tab.Screen name="Prestamos" component={Prestamos} />
-      <Tab.Screen name="Historial" component={HistorialScreen} />
-      <Tab.Screen name="Configuración" component={ConfiguracionScreen} />
+      {/* Tab: Historial */}
+      <Tab.Screen
+        name="Historial"
+        component={HistorialScreen}
+        options={{
+          tabBarIcon: ({ color, size, focused }) => (
+            <FontAwesome5
+              name="history"
+              size={focused ? 26 : 24} // Ajuste del tamaño del ícono
+              color={focused ? "#00AF00" : "#cfcfcf"} // Verde cuando está seleccionado
+              style={styles.iconStyle}
+            />
+          ),
+        }}
+      />
+
+      {/* Tab: Visitantes */}
+      <Tab.Screen
+        name="Visitantes"
+        component={RegistroVisitantes}
+        options={{
+          tabBarIcon: ({ color, size, focused }) => (
+            <FontAwesome5
+              name="user-friends"
+              size={focused ? 26 : 24} // Ajuste del tamaño del ícono
+              color={focused ? "#00AF00" : "#cfcfcf"} // Verde cuando está seleccionado
+              style={styles.iconStyle}
+            />
+          ),
+        }}
+      />
+
+      {/* Tab: Home (Botón central) */}
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        initialParams={{ usuario }}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <FontAwesome5
+              name="plus"
+              size={focused ? 30 : 30} // El ícono central más grande cuando está enfocado
+              color="#ffffff"
+              style={styles.iconStyle}
+            />
+          ),
+          tabBarButton: (props) => <CustomTabBarButton {...props} />,
+        }}
+      />
+
+      {/* Tab: Prestamos */}
+      <Tab.Screen
+        name="Prestamos"
+        component={Prestamos}
+        options={{
+          tabBarIcon: ({ color, size, focused }) => (
+            <FontAwesome5
+              name="toolbox"
+              size={focused ? 26 : 24} // Ajuste del tamaño del ícono
+              color={focused ? "#00AF00" : "#cfcfcf"} // Verde cuando está seleccionado
+              style={styles.iconStyle}
+            />
+          ),
+        }}
+      />
+
+      {/* Tab: Configuración */}
+      <Tab.Screen
+        name="Configuración"
+        component={ConfiguracionScreen}
+        options={{
+          tabBarIcon: ({ color, size, focused }) => (
+            <FontAwesome5
+              name="cogs"
+              size={focused ? 26 : 24} // Ajuste del tamaño del ícono
+              color={focused ? "#00AF00" : "#cfcfcf"} // Verde cuando está seleccionado
+              style={styles.iconStyle}
+            />
+          ),
+        }}
+      />
     </Tab.Navigator>
   );
 }
+
+const styles = StyleSheet.create({
+  tabBar: {
+    position: "absolute",
+    backgroundColor: "#ffffff",
+    height: 90,
+    borderTopWidth: 0,
+    elevation: 0,
+    paddingBottom: 10,
+    paddingTop: 12,
+  },
+  customButtonContainer: {
+    top: -35,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  customButton: {
+    width: 75,
+    height: 75,
+    borderRadius: 37.5, // Circular
+    backgroundColor: "#0e7e0e",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.5,
+    elevation: 5,
+  },
+  iconStyle: {
+    alignSelf: "center",
+  },
+});

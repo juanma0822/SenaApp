@@ -34,6 +34,9 @@ export default function RegistroVisitantes({ navigation }) {
           ]}
         >
           <Text style={styles.title}>Registro de Visitantes</Text>
+          <Text style={styles.description}>
+            Selecciona una opción para registrar el ingreso o salida.
+          </Text>
           <ScrollView style={styles.scrollContainer}>
             {!mostrarCampos && !tipoIngreso ? (
               <View style={styles.buttonsContainer}>
@@ -112,7 +115,7 @@ const styles = StyleSheet.create({
     borderColor: "#008000", // Color del borde
   },
   smallCard: {
-    height: 350, // Altura pequeña para los 3 botones
+    height: 400, // Altura pequeña para los 3 botones
   },
   largeCard: {
     height: height - TAB_BAR_HEIGHT - 85, // Altura dinámica para contenido más largo
@@ -121,8 +124,14 @@ const styles = StyleSheet.create({
     fontSize: 25,
     fontWeight: "bold",
     color: "#00AF00", // Verde institucional
-    marginBottom: 20,
+    marginBottom: 10,
     textAlign: "center", // Centrar el texto del título
+  },
+  description: {
+    fontSize: 16,
+    color: "#666666", // Color gris para el texto descriptivo
+    marginBottom: 20,
+    textAlign: "center",
   },
   scrollContainer: {
     flex: 1,
@@ -147,6 +156,7 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 18,
     fontWeight: "bold",
+    textAlign: "center", // Centrar el texto del botón
   },
   cancelButton: {
     backgroundColor: "#FF5C5C",

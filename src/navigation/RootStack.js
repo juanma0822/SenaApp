@@ -10,6 +10,7 @@ import GuardaTabs from "./GuardaTabs";
 import AdminTabs from "./AdminTabs";
 import EscanearQR from "../screens/Home/EscanearQR";
 import Home from "../screens/Home/Home";
+import CrearLlave from "../components/LlavesGuarda/CrearLlave";
 
 const Stack = createNativeStackNavigator();
 
@@ -57,6 +58,22 @@ export default function RootStack({ initialRouteName = "Splash" }) {
         name="GuardaTabs"
         component={GuardaTabs}
         options={{ headerShown: false }}
+      />
+
+      <Stack.Screen
+        name="CrearLlave"
+        component={CrearLlave} // Registrar CrearLlave
+        options={{
+          title: "Crear Llave", // Título en la barra de navegación
+          headerStyle: {
+            backgroundColor: "#00AF00", // Fondo verde institucional
+          },
+          headerTintColor: "#FFFFFF", // Texto blanco
+          headerTitleStyle: {
+            fontWeight: "bold", // Texto en negrita
+          },
+          headerBackTitle: "Volver",
+        }}
       />
 
       <Stack.Screen

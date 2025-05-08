@@ -10,6 +10,7 @@ import {
   Linking,
   Image,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { FontAwesome } from "@expo/vector-icons";
@@ -25,13 +26,16 @@ export default function InstagramLogin() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [loading, setLoading] = useState(false);  //Estado de carga
 
   const handleLogin = async () => {
-    // Add login logic here
     if (!username || !password) {
-      alert("Please fill in all fields");
+      alert("Por favor completa todos los campos");
       return;
     }
+
+    setLoading(true); // Activar el estado de carga
+
     try {
       const backendUrl = Constants.expoConfig.extra.REACT_APP_BACKEND_URL;
 
@@ -54,19 +58,19 @@ export default function InstagramLogin() {
       if (decoded.rol === "aprendiz" || decoded.rol === "funcionario") {
         Alert.alert(
           "Ingreso exitoso",
-          "Bienvenido usuario a la aplicacion de registro SENA"
+          "Bienvenido usuario a la aplicación de registro SENA"
         );
         navigation.navigate("AprendizFuncionarioTabs", { usuario: decoded });
       } else if (decoded.rol === "guarda") {
         Alert.alert(
           "Ingreso exitoso",
-          "Bienvenido vigilante a la aplicacion de registro SENA"
+          "Bienvenido vigilante a la aplicación de registro SENA"
         );
         navigation.navigate("GuardaTabs", { usuario: decoded });
       } else if (decoded.rol === "admin") {
         Alert.alert(
           "Ingreso exitoso",
-          "Bienvenido subdirector a la aplicacion de registro SENA"
+          "Bienvenido subdirector a la aplicación de registro SENA"
         );
         navigation.navigate("AdminTabs", { usuario: decoded });
       } else {
@@ -78,6 +82,8 @@ export default function InstagramLogin() {
         error.response?.data?.error ||
           "Error al iniciar sesión. Verifica tus credenciales."
       );
+    } finally {
+      setLoading(false); // Desactivar el estado de carga
     }
   };
 
@@ -134,20 +140,33 @@ export default function InstagramLogin() {
             </Pressable>
           </View>
 
-          <TouchableOpacity onPress={handleLogin} style={styles.loginButton}>
+          {/* Botón de Ingresar */}
+          <TouchableOpacity
+            onPress={handleLogin}
+            style={[styles.loginButton, loading && styles.disabledButton]}
+            disabled={loading} // Desactivar el botón mientras carga
+          >
             <LinearGradient
-              colors={["#4AB000", "#00B03C", "#00AF00", "#93B000", "#B7B021"]}
+              colors={
+                loading
+                  ? ["#cccccc", "#cccccc"] // Colores grises mientras carga
+                  : ["#4AB000", "#00B03C", "#00AF00", "#93B000", "#B7B021"]
+              }
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={styles.gradient}
             >
-              <Text style={styles.loginButtonText}>Ingresar</Text>
+              {loading ? (
+                <ActivityIndicator size="small" color="#FFFFFF" />
+              ) : (
+                <Text style={styles.loginButtonText}>Ingresar</Text>
+              )}
             </LinearGradient>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.forgotPassword}>
             <Text style={styles.forgotPasswordText}>
-              Olvidaste tu contraseña?
+              ¿Olvidaste tu contraseña?
             </Text>
           </TouchableOpacity>
 
@@ -371,5 +390,8 @@ const styles = StyleSheet.create({
   },
   wave: {
     width: "100%",
+  },
+  disabledButton: {
+    opacity: 0.7, // Reducir la opacidad cuando el botón está desactivado
   },
 });

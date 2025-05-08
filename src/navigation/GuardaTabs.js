@@ -4,11 +4,13 @@ import HistorialScreen from "../screens/Home/Historial";
 import ConfiguracionScreen from "../screens/Home/Configuracion";
 import RegistroVisitantes from "../screens/Guarda/RegistroVisitantes";
 import Prestamos from "../screens/Guarda/Prestamos";
+import CrearLlave from "../components/LlavesGuarda/CrearLlave";
 import { FontAwesome5 } from "@expo/vector-icons";
 import React, { useState } from "react";
 import { View, TouchableOpacity, Animated, StyleSheet } from "react-native";
 
 const Tab = createBottomTabNavigator();
+
 
 function CustomTabBarButton({ children, onPress }) {
   const [scale, setScale] = useState(new Animated.Value(1)); // Controla el tamaño del botón

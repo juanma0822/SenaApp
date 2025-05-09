@@ -4,13 +4,14 @@ import LoginScreen from "../screens/Auth/Login";
 import RegistrationScreen from "../screens/Auth/Registration";
 import RegistroAprendiz from "../screens/Auth/RegistroAprendiz";
 import RegistroFuncionario from "../screens/Auth/RegistroFuncionario";
-import HomeTabs from "./HomeTabs";
 import AprendizFuncionarioTabs from "./AprendizFuncionarioTabs";
 import GuardaTabs from "./GuardaTabs";
 import AdminTabs from "./AdminTabs";
 import EscanearQR from "../screens/Home/EscanearQR";
 import Home from "../screens/Home/Home";
 import CrearLlave from "../components/LlavesGuarda/CrearLlave";
+import SalidaDispositivo from "../components/SalidaDispositivosGuarda/SalidaDispositivos";
+import GestionPrestamoLlaves from "../components/LlavesGuarda/GestionPrestamoLlave";
 
 const Stack = createNativeStackNavigator();
 
@@ -65,6 +66,38 @@ export default function RootStack({ initialRouteName = "Splash" }) {
         component={CrearLlave} // Registrar CrearLlave
         options={{
           title: "Crear Llave", // Título en la barra de navegación
+          headerStyle: {
+            backgroundColor: "#00AF00", // Fondo verde institucional
+          },
+          headerTintColor: "#FFFFFF", // Texto blanco
+          headerTitleStyle: {
+            fontWeight: "bold", // Texto en negrita
+          },
+          headerBackTitle: "Volver",
+        }}
+      />
+
+      <Stack.Screen
+        name="PrestamoLlave"
+        component={GestionPrestamoLlaves} // Registrar CrearLlave
+        options={{
+          title: "Gestion prestamos llaves", // Título en la barra de navegación
+          headerStyle: {
+            backgroundColor: "#00AF00", // Fondo verde institucional
+          },
+          headerTintColor: "#FFFFFF", // Texto blanco
+          headerTitleStyle: {
+            fontWeight: "bold", // Texto en negrita
+          },
+          headerBackTitle: "Volver",
+        }}
+      />
+
+      <Stack.Screen
+        name="SalidaDispositivo"
+        component={SalidaDispositivo} // Registrar CrearLlave
+        options={{
+          title: "Salida Dispositivo", // Título en la barra de navegación
           headerStyle: {
             backgroundColor: "#00AF00", // Fondo verde institucional
           },

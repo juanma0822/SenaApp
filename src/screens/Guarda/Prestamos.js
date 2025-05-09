@@ -42,12 +42,6 @@ export default function Prestamos({ navigation }) {
               <Text style={styles.buttonText}>Salida de Dispositivo</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => navigation.navigate("DevolucionDispositivo")}
-            >
-              <Text style={styles.buttonText}>Devolución de Dispositivo</Text>
-            </TouchableOpacity>
           </View>
         </View>
       </View>

@@ -12,8 +12,9 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Timeline from "../../components/Timeline";
 import Constants from "expo-constants";
+import * as Print from "expo-print";
+import * as Sharing from "expo-sharing";
 
-const { height } = Dimensions.get("window"); // Obtener el alto de la pantalla
 const TAB_BAR_HEIGHT = 90; // Altura de la barra de navegación
 
 export default function Historial({ navigation }) {
@@ -21,9 +22,11 @@ export default function Historial({ navigation }) {
   const [dailySummary, setDailySummary] = useState([]);
   const [isDailyHistory, setIsDailyHistory] = useState(true);
   const [showSummary, setShowSummary] = useState(false);
+  const [isGuarda, setIsGuarda] = useState(false);
 
   useEffect(() => {
     fetchHistoricalData();
+    checkUserRole();
   }, [isDailyHistory]);
 
   const fetchHistoricalData = async () => {
@@ -45,6 +48,99 @@ export default function Historial({ navigation }) {
     }
   };
 
+  const checkUserRole = async () => {
+    const token = await AsyncStorage.getItem("token");
+    if (token) {
+      const decodedToken = JSON.parse(atob(token.split(".")[1]));
+      if (decodedToken.rol === "guarda") {
+        setIsGuarda(true);
+      }
+    }
+  };
+
+  const generatePDF = async () => {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      const baseUrl = Constants.expoConfig.extra.REACT_APP_BACKEND_URL;
+      const response = await axios.get(
+        `${baseUrl}/api/ingresos/funcionariosdia`,
+        { headers }
+      );
+
+      const funcionarios = response.data;
+      console.log(funcionarios);
+
+      const htmlContent = `
+        <html>
+          <head>
+            <style>
+              body {
+                font-family: Arial, sans-serif;
+                margin: 20px;
+              }
+              h1 {
+                text-align: center;
+                color: #00AF00;
+              }
+              table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+              }
+              th, td {
+                padding: 8px;
+                text-align: left;
+                border-bottom: 1px solid #ddd;
+              }
+              th {
+                background-color: #f2f2f2;
+              }
+            </style>
+          </head>
+          <body>
+            <h1>Reporte Diario de Funcionarios</h1>
+            <table>
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Apellido</th>
+                  <th>Documento</th>
+                  <th>Cargo</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${funcionarios
+                  .map(
+                    (funcionario) => `
+                  <tr>
+                    <td>${funcionario.nombres}</td>
+                    <td>${funcionario.apellidos}</td>
+                    <td>${funcionario.numero_documento}</td>
+                    <td>${funcionario.cargo}</td>
+                  </tr>
+                `
+                  )
+                  .join("")}
+              </tbody>
+            </table>
+          </body>
+        </html>
+      `;
+
+      const { uri } = await Print.printToFileAsync({ html: htmlContent });
+      await Sharing.shareAsync(uri, {
+        UTI: ".pdf",
+        mimeType: "application/pdf",
+      });
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+    }
+  };
+
   const fetchDailySummary = async () => {
     try {
       const token = await AsyncStorage.getItem("token");
@@ -53,7 +149,9 @@ export default function Historial({ navigation }) {
       };
 
       const baseUrl = Constants.expoConfig.extra.REACT_APP_BACKEND_URL;
-      const response = await axios.get(`${baseUrl}/api/ingresos/resumen-dia`, { headers });
+      const response = await axios.get(`${baseUrl}/api/ingresos/resumen-dia`, {
+        headers,
+      });
       setDailySummary(response.data || []); // Guardar el resumen diario
     } catch (error) {
       console.error("Error fetching daily summary:", error);
@@ -76,7 +174,8 @@ export default function Historial({ navigation }) {
           <View style={styles.card}>
             <Text style={styles.title}>Historial</Text>
             <Text style={styles.description}>
-              Aquí podrás visualizar el historial de registros en la plataforma, tanto el histórico como el diario.
+              Aquí podrás visualizar el historial de registros en la plataforma,
+              tanto el histórico como el diario.
             </Text>
             <View style={styles.buttonsContainer}>
               <TouchableOpacity
@@ -101,9 +200,14 @@ export default function Historial({ navigation }) {
             )}
 
             {/* Botón para mostrar/ocultar resumen diario */}
-            <TouchableOpacity style={styles.summaryButton} onPress={toggleSummary}>
+            <TouchableOpacity
+              style={styles.summaryButton}
+              onPress={toggleSummary}
+            >
               <Text style={styles.summaryButtonText}>
-                {showSummary ? "Ocultar Resumen Diario" : "Mostrar Resumen Diario"}
+                {showSummary
+                  ? "Ocultar Resumen Diario"
+                  : "Mostrar Resumen Diario"}
               </Text>
             </TouchableOpacity>
 
@@ -118,23 +222,33 @@ export default function Historial({ navigation }) {
                         {summary.fecha}
                       </Text>
                       <Text style={styles.summaryText}>
-                        <Text style={styles.summaryLabel}>Primer Ingreso: </Text>
-                        {new Date(summary.primer_ingreso).toLocaleTimeString("es-CO", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: true,
-                        })}
+                        <Text style={styles.summaryLabel}>
+                          Primer Ingreso:{" "}
+                        </Text>
+                        {new Date(summary.primer_ingreso).toLocaleTimeString(
+                          "es-CO",
+                          {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: true,
+                          }
+                        )}
                       </Text>
                       <Text style={styles.summaryText}>
                         <Text style={styles.summaryLabel}>Última Salida: </Text>
-                        {new Date(summary.ultima_salida).toLocaleTimeString("es-CO", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: true,
-                        })}
+                        {new Date(summary.ultima_salida).toLocaleTimeString(
+                          "es-CO",
+                          {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: true,
+                          }
+                        )}
                       </Text>
                       <Text style={styles.summaryText}>
-                        <Text style={styles.summaryLabel}>Total Entradas: </Text>
+                        <Text style={styles.summaryLabel}>
+                          Total Entradas:{" "}
+                        </Text>
                         {summary.total_entradas}
                       </Text>
                       <Text style={styles.summaryText}>
@@ -144,9 +258,23 @@ export default function Historial({ navigation }) {
                     </View>
                   ))
                 ) : (
-                  <Text style={styles.noDataText}>No hay resumen diario disponible</Text>
+                  <Text style={styles.noDataText}>
+                    No hay resumen diario disponible
+                  </Text>
                 )}
               </View>
+            )}
+
+            {/* Botón para generar PDF */}
+            {isGuarda && (
+              <TouchableOpacity
+                style={styles.reportButton}
+                onPress={generatePDF}
+              >
+                <Text style={styles.reportButtonText}>
+                  Generar Reporte Diario
+                </Text>
+              </TouchableOpacity>
             )}
           </View>
         </ScrollView>
@@ -186,7 +314,6 @@ const styles = StyleSheet.create({
     elevation: 5, // Sombra para Android
     borderWidth: 4, // Grosor del borde
     borderColor: "#008000", // Color del borde
-    
   },
   title: {
     fontSize: 24,
@@ -261,5 +388,20 @@ const styles = StyleSheet.create({
   summaryLabel: {
     fontWeight: "bold",
     color: "#555",
+  },
+  reportButton: {
+    backgroundColor: "#008000", // Color verde institucional
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 10,
+    marginTop: 20, // Espaciado hacia abajo
+    width: "100%", // Asegura que el botón ocupe todo el ancho
+    alignItems: "center", // Centrar el texto dentro del botón
+  },
+  reportButtonText: {
+    color: "#fff", // Texto en blanco
+    fontSize: 18,
+    fontWeight: "bold",
+    textAlign: "center", // Centrar el texto
   },
 });

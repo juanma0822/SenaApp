@@ -4,7 +4,7 @@ import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import * as Haptics from 'expo-haptics';
-import { Audio } from 'expo-av';
+import { Audio } from 'expo-audio';
 import * as Location from 'expo-location';
 import { getDistance } from 'geolib';
 import axios from 'axios';
@@ -33,6 +33,7 @@ const showAlertOnce = (title, message, callback = () => {}) => {
 export const useQRScanner = ({ tipo, navigation }) => {
   const [scanned, setScanned] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [sound, setSound] = useState(null); // Estado para el sonido
 
   const getUserLocation = async () => {
     const { status } = await Location.requestForegroundPermissionsAsync();
@@ -89,10 +90,11 @@ export const useQRScanner = ({ tipo, navigation }) => {
 
       if (response.status === 201) {
         await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        const { sound } = await Audio.Sound.createAsync(
+        const { sound: newSound } = await Audio.Sound.createAsync(
           require('../../assets/success.mp3')
         );
-        await sound.playAsync();
+        setSound(newSound);
+        await newSound.playAsync();
 
         setTimeout(() => {
           showAlertOnce(

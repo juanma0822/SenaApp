@@ -19,7 +19,7 @@ import Svg, { Path } from "react-native-svg";
 import Constants from "expo-constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
+import  jwtDecode  from "jwt-decode";
 
 export default function InstagramLogin() {
   const navigation = useNavigation();

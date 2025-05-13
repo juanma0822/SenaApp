@@ -47,7 +47,7 @@ function CustomTabBarButton({ children, onPress }) {
 }
 
 export default function GuardaTabs({ route }) {
-  const { usuario } = route.params;
+  const { usuario } = route.params || {}; // Asegúrate de que usuario no sea undefined
 
   return (
     <Tab.Navigator

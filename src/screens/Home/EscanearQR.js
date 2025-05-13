@@ -15,7 +15,7 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
 import * as Haptics from "expo-haptics";
-import { Audio } from "expo-av";
+
 import QRScannerView from "../../components/QRScannerView";
 import { useQRScanner } from "../../hooks/useQRScanner";
 

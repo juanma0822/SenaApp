@@ -1,4 +1,3 @@
-// screens/SplashScreen.js
 import React, { useEffect } from "react";
 import { View, Text, StyleSheet, Image, StatusBar } from "react-native";
 import Svg, { Path } from "react-native-svg";
@@ -10,8 +9,9 @@ export default function SplashScreen({
   autoNavigate = true,
   duration = 3000,
   nextScreen = "Login",
+  navigation: parentNavigation, // Recibir navegación como prop
 }) {
-  const navigation = useNavigation();
+  const navigation = parentNavigation || useNavigation(); // Usar la navegación pasada como prop o el hook
 
   useEffect(() => {
     if (autoNavigate) {

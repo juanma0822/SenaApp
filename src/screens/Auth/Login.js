@@ -19,14 +19,17 @@ import Svg, { Path } from "react-native-svg";
 import Constants from "expo-constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-import  jwtDecode  from "jwt-decode";
+import  {jwtDecode}  from "jwt-decode";
 
 export default function InstagramLogin() {
   const navigation = useNavigation();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [correoInstitucional, setCorreoInstitucional] = useState("");
+  const [numeroDocumento, setNumeroDocumento] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [loading, setLoading] = useState(false);  //Estado de carga
+  const [isRecoveringPassword, setIsRecoveringPassword] = useState(false); // Estado para alternar entre login y recuperación
 
   const handleLogin = async () => {
     if (!username || !password) {
@@ -87,6 +90,44 @@ export default function InstagramLogin() {
     }
   };
 
+  const handleRecoverPassword = async () => {
+    if (!correoInstitucional || !numeroDocumento) {
+      alert("Por favor completa todos los campos");
+      return;
+    }
+
+    console.log(numeroDocumento, correoInstitucional);
+    setLoading(true); // Activar el estado de carga
+
+    try {
+      const backendUrl = Constants.expoConfig.extra.REACT_APP_BACKEND_URL;
+
+      const response = await axios.post(
+        `${backendUrl}/api/auth/recuperar-contrasena`,
+        {
+          correo_institucional: correoInstitucional,
+          numero_documento: numeroDocumento,
+        }
+      );
+
+      Alert.alert(
+        "Recuperación exitosa",
+        response.data.message || "Se ha enviado una nueva contraseña a tus correos registrados"
+      );
+
+      // Volver al flujo de login
+      setIsRecoveringPassword(false);
+    } catch (error) {
+      console.error("Error en recuperación de contraseña:", error);
+      alert(
+        error.response?.data?.error ||
+          "Error al recuperar la contraseña. Verifica los datos ingresados."
+      );
+    } finally {
+      setLoading(false); // Desactivar el estado de carga
+    }
+  };
+
   const handleLinkPress = (url) => {
     Linking.openURL(url);
   };
@@ -100,49 +141,79 @@ export default function InstagramLogin() {
         {/* Logo Section */}
         <View style={styles.logoContainer}>
           <Image
-            source={require("../../../assets/logoSena.png")}
+            source={require("../../../assets/LogosenaGo.png")}
             style={styles.logoImage}
           />
-          <Text style={styles.logoText}>Registro Sena</Text>
+          <Text style={styles.logoText}>SENA Go!</Text>
         </View>
 
         {/* Form Section */}
         <View style={styles.formContainer}>
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="Correo institucional"
-              placeholderTextColor="#666"
-              value={username}
-              onChangeText={setUsername}
-              autoCapitalize="none"
-            />
-          </View>
+          {isRecoveringPassword ? (
+            <>
+              {/* Recuperar Contraseña */}
+              <View style={styles.inputContainer}>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Correo institucional"
+                  placeholderTextColor="#666"
+                  value={correoInstitucional}
+                  onChangeText={setCorreoInstitucional}
+                  autoCapitalize="none"
+                />
+              </View>
 
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={[styles.input, styles.passwordInput]}
-              placeholder="Contraseña"
-              placeholderTextColor="#666"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!isPasswordVisible}
-            />
-            <Pressable
-              onPress={() => setIsPasswordVisible(!isPasswordVisible)}
-              style={styles.eyeIcon}
-            >
-              <FontAwesome
-                name={isPasswordVisible ? "eye" : "eye-slash"}
-                size={20}
-                color="#666"
-              />
-            </Pressable>
-          </View>
+              <View style={styles.inputContainer}>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Número de documento"
+                  placeholderTextColor="#666"
+                  value={numeroDocumento}
+                  onChangeText={setNumeroDocumento}
+                  keyboardType="numeric"
+                />
+              </View>
+            </>
+          ) : (
+            <>
+              {/* Login */}
+              <View style={styles.inputContainer}>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Correo institucional"
+                  placeholderTextColor="#666"
+                  value={username}
+                  onChangeText={setUsername}
+                  autoCapitalize="none"
+                />
+              </View>
 
-          {/* Botón de Ingresar */}
+              <View style={styles.inputContainer}>
+                <TextInput
+                  style={[styles.input, styles.passwordInput]}
+                  placeholder="Contraseña"
+                  placeholderTextColor="#666"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!isPasswordVisible}
+                />
+                <Pressable
+                  onPress={() => setIsPasswordVisible(!isPasswordVisible)}
+                  style={styles.eyeIcon}
+                >
+                  <FontAwesome
+                    name={isPasswordVisible ? "eye" : "eye-slash"}
+                    size={20}
+                    color="#666"
+                  />
+                </Pressable>
+              </View>
+            </>
+          )}
+
+          {/* Botón de acción */}
           <TouchableOpacity
-            onPress={handleLogin}
+            onPress={isRecoveringPassword ? handleRecoverPassword : handleLogin}
             style={[styles.loginButton, loading && styles.disabledButton]}
             disabled={loading} // Desactivar el botón mientras carga
           >
@@ -159,14 +230,21 @@ export default function InstagramLogin() {
               {loading ? (
                 <ActivityIndicator size="small" color="#FFFFFF" />
               ) : (
-                <Text style={styles.loginButtonText}>Ingresar</Text>
+                <Text style={styles.loginButtonText}>
+                  {isRecoveringPassword ? "Recuperar Contraseña" : "Ingresar"}
+                </Text>
               )}
             </LinearGradient>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.forgotPassword}>
+          <TouchableOpacity
+            style={styles.forgotPassword}
+            onPress={() => setIsRecoveringPassword(!isRecoveringPassword)}
+          >
             <Text style={styles.forgotPasswordText}>
-              ¿Olvidaste tu contraseña?
+              {isRecoveringPassword
+                ? "Volver al inicio de sesión"
+                : "¿Olvidaste tu contraseña?"}
             </Text>
           </TouchableOpacity>
 
@@ -271,8 +349,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   logoImage: {
-    width: 100,
-    height: 100,
+    width: 170,
+    height: 120,
     marginBottom: 20,
   },
   formContainer: {

@@ -61,7 +61,7 @@ export default function Home(props) {
           source={require("../../../assets/LogoSenaWhite.png")}
           style={styles.logoImage}
         />
-        <Text style={styles.logoText}>Registro SENA</Text>
+        <Text style={styles.logoText}>SENA Go!</Text>
       </View>
 
       {/* Contenedor principal */}

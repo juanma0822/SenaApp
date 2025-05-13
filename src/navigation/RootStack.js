@@ -15,7 +15,7 @@ import GestionPrestamoLlaves from "../components/LlavesGuarda/GestionPrestamoLla
 
 const Stack = createNativeStackNavigator();
 
-export default function RootStack({ initialRouteName = "Splash" }) {
+export default function RootStack({ initialRouteName = "Splash", usuario }) {
   return (
     <Stack.Navigator initialRouteName={initialRouteName}>
       <Stack.Screen
@@ -58,6 +58,7 @@ export default function RootStack({ initialRouteName = "Splash" }) {
       <Stack.Screen
         name="GuardaTabs"
         component={GuardaTabs}
+        initialParams={{ usuario }} // Pasar el usuario como parámetro inicial
         options={{ headerShown: false }}
       />
 

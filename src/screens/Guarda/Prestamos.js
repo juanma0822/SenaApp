@@ -6,6 +6,7 @@ import {
   StyleSheet,
   ScrollView,
 } from "react-native";
+import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
 
 export default function Prestamos({ navigation }) {
   return (
@@ -23,6 +24,7 @@ export default function Prestamos({ navigation }) {
               style={styles.button}
               onPress={() => navigation.navigate("PrestamoLlave")}
             >
+              <FontAwesome5 name="key" size={18} color="#fff" style={styles.buttonIcon} />
               <Text style={styles.buttonText}>Préstamo de Llave</Text>
             </TouchableOpacity>
 
@@ -30,6 +32,7 @@ export default function Prestamos({ navigation }) {
               style={styles.button}
               onPress={() => navigation.navigate("CrearLlave")}
             >
+              <FontAwesome name="plus-square" size={18} color="#fff" style={styles.buttonIcon} />
               <Text style={styles.buttonText}>Creación de Llave</Text>
             </TouchableOpacity>
           </View>
@@ -39,9 +42,9 @@ export default function Prestamos({ navigation }) {
               style={styles.button}
               onPress={() => navigation.navigate("SalidaDispositivo")}
             >
+              <FontAwesome name="tablet" size={18} color="#fff" style={styles.buttonIcon} />
               <Text style={styles.buttonText}>Salida de Dispositivo</Text>
             </TouchableOpacity>
-
           </View>
         </View>
       </View>
@@ -97,18 +100,19 @@ const styles = StyleSheet.create({
     marginBottom: 15, // Espaciado entre filas
   },
   button: {
-    backgroundColor: "#00AF00", // Fondo verde institucional
+    flexDirection: "column", // Ícono y texto en línea
+    backgroundColor: "#00AF00",
     paddingVertical: 15,
     paddingHorizontal: 20,
-    borderRadius: 20, // Bordes redondeados
-    width: "45%", // Ancho del botón (45% para que quepan 2 por fila)
+    borderRadius: 20,
+    width: "45%",
     alignItems: "center",
     justifyContent: "center",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
-    elevation: 3, // Sombra para Android
+    elevation: 3,
   },
   buttonText: {
     color: "#FFFFFF",

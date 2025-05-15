@@ -14,9 +14,11 @@ import {
 import { Picker } from "@react-native-picker/picker";
 import Icon from "react-native-vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
-import RNPickerSelect from 'react-native-picker-select';
+import RNPickerSelect from "react-native-picker-select";
 
-
+function toTitleCase(str) {
+  return str.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
+}
 
 export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
   const navigation = useNavigation();
@@ -32,26 +34,25 @@ export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
   const [erroresCampos, setErroresCampos] = useState({});
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
-const showDatePicker = () => {
-  setDatePickerVisibility(true);
-};
+  const showDatePicker = () => {
+    setDatePickerVisibility(true);
+  };
 
-const hideDatePicker = () => {
-  setDatePickerVisibility(false);
-};
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
 
-const handleConfirm = (date) => {
-  const dia = date.getDate().toString().padStart(2, '0');
-  const mes = date.toLocaleString('es-ES', { month: 'long' });
-  const anio = date.getFullYear().toString();
+  const handleConfirm = (date) => {
+    const dia = date.getDate().toString().padStart(2, "0");
+    const mes = date.toLocaleString("es-ES", { month: "long" });
+    const anio = date.getFullYear().toString();
 
-  handleChange('diaNacimiento', dia);
-  handleChange('mesNacimiento', mes);
-  handleChange('anioNacimiento', anio);
+    handleChange("diaNacimiento", dia);
+    handleChange("mesNacimiento", mes);
+    handleChange("anioNacimiento", anio);
 
-  hideDatePicker();
-};
-
+    hideDatePicker();
+  };
 
   //Obtener la lista de los departamentos al momento de cargarse el componente
   useEffect(() => {
@@ -152,8 +153,13 @@ const handleConfirm = (date) => {
   };
 
   const handleChange = (name, value) => {
+    let formattedValue = value;
+    // Aplica Title Case solo a los campos de nombres y apellidos
+    if (["nombres", "apellidos", "lugarExpedicion", "programa", "cargo", "area"].includes(name)) {
+      formattedValue = toTitleCase(value);
+    }
     const updatedFormData = { ...formData, [name]: value };
-  
+
     // Construir la fecha de nacimiento si los campos están completos
     if (
       updatedFormData.diaNacimiento &&
@@ -162,7 +168,7 @@ const handleConfirm = (date) => {
     ) {
       updatedFormData.fechaNacimiento = `${updatedFormData.diaNacimiento}/${updatedFormData.mesNacimiento}/${updatedFormData.anioNacimiento}`;
     }
-  
+
     setFormData(updatedFormData);
   };
 
@@ -173,14 +179,14 @@ const handleConfirm = (date) => {
     const camposVacios = camposRequeridos.filter(
       (c) => !formData[c.name] || formData[c.name].trim() === ""
     );
-  
+
     if (camposVacios.length > 0) {
       camposVacios.forEach((campo) => {
         nuevosErrores[campo.name] = true;
       });
-  
+
       setErroresCampos(nuevosErrores);
-  
+
       const nombresCampos = camposVacios
         .map((c) => c.placeholder || c.name)
         .join(", ");
@@ -190,7 +196,7 @@ const handleConfirm = (date) => {
       );
       return;
     }
-  
+
     if (!formData["correoInstitucional"]?.endsWith("@soy.sena.edu.co")) {
       setErroresCampos({ correoInstitucional: true });
       Alert.alert(
@@ -199,7 +205,7 @@ const handleConfirm = (date) => {
       );
       return;
     }
-  
+
     if (formData["contrasena"] !== formData["repetirContrasena"]) {
       setErroresCampos({
         contrasena: true,
@@ -211,9 +217,13 @@ const handleConfirm = (date) => {
       );
       return;
     }
-  
+
     // VALIDACIÓN DE FECHA NACIMIENTO (ahora ya está unida)
-    if (!formData.diaNacimiento || !formData.mesNacimiento || !formData.anioNacimiento) {
+    if (
+      !formData.diaNacimiento ||
+      !formData.mesNacimiento ||
+      !formData.anioNacimiento
+    ) {
       Alert.alert(
         "Fecha incompleta",
         "Por favor completa tu fecha de nacimiento: día, mes y año."
@@ -223,15 +233,14 @@ const handleConfirm = (date) => {
 
     setErroresCampos({}); // Si todo está bien, limpiamos errores
     setGuardando(true);
-  
+
     const datosFinales = {
-      ...formData
+      ...formData,
     };
-  
+
     console.log("Datos a enviar:", datosFinales); // Solo para pruebas
     onSubmit(datosFinales);
   };
-  
 
   const renderSeccion = (tituloSeccion, icono, camposSeccion) => (
     <View style={styles.seccionContainer} key={tituloSeccion}>
@@ -241,95 +250,107 @@ const handleConfirm = (date) => {
       </View>
       <View style={styles.card}>
         {camposSeccion.map((campo) => {
+          //Para los campos de fecha de nacimiento
+          if (campo.type === "fechaCustom") {
+            return (
+              <View key={campo.name} style={{ marginBottom: 15 }}>
+                <Text style={styles.label}>Fecha de Nacimiento:</Text>
 
-        //Para los campos de fecha de nacimiento
-        if (campo.type === "fechaCustom") {
-          return (
-            <View key={campo.name} style={{ marginBottom: 15 }}>
-              <Text style={styles.label}>Fecha de Nacimiento:</Text>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  {/* Día */}
+                  <TextInput
+                    style={[styles.input, { width: "30%" }]}
+                    placeholder="Día"
+                    keyboardType="numeric"
+                    maxLength={2}
+                    onChangeText={(text) => handleChange("diaNacimiento", text)}
+                    value={formData.diaNacimiento || ""}
+                  />
 
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                {/* Día */}
-                <TextInput
-                  style={[styles.input, { width: '30%' }]}
-                  placeholder="Día"
-                  keyboardType="numeric"
-                  maxLength={2}
-                  onChangeText={(text) => handleChange('diaNacimiento', text)}
-                  value={formData.diaNacimiento || ""}
-                />
+                  {/* Mes */}
+                  <View style={{ width: "30%", position: "relative" }}>
+                    <RNPickerSelect
+                      onValueChange={(value) =>
+                        handleChange("mesNacimiento", value)
+                      }
+                      placeholder={{ label: "Mes", value: "" }}
+                      items={[
+                        { label: "Enero", value: "Enero" },
+                        { label: "Febrero", value: "Febrero" },
+                        { label: "Marzo", value: "Marzo" },
+                        { label: "Abril", value: "Abril" },
+                        { label: "Mayo", value: "Mayo" },
+                        { label: "Junio", value: "Junio" },
+                        { label: "Julio", value: "Julio" },
+                        { label: "Agosto", value: "Agosto" },
+                        { label: "Septiembre", value: "Septiembre" },
+                        { label: "Octubre", value: "Octubre" },
+                        { label: "Noviembre", value: "Noviembre" },
+                        { label: "Diciembre", value: "Diciembre" },
+                      ]}
+                      value={formData.mesNacimiento || ""}
+                      style={{
+                        inputIOS: {
+                          height: 50,
+                          borderColor: "#00AF00",
+                          borderWidth: 1,
+                          borderRadius: 8,
+                          paddingHorizontal: 10,
+                          width: "100%",
+                          justifyContent: "center",
+                          textAlign: "center",
+                          paddingRight: 25, // espacio para la flecha
+                        },
+                        inputAndroid: {
+                          height: 50,
+                          borderColor: "#00AF00",
+                          borderWidth: 1,
+                          borderRadius: 8,
+                          paddingHorizontal: 10,
+                          width: "100%",
+                          justifyContent: "center",
+                          textAlign: "center",
+                          paddingRight: 25, // espacio para la flecha
+                        },
+                        iconContainer: {
+                          top: 18,
+                          right: 10,
+                          position: "absolute",
+                        },
+                      }}
+                      useNativeAndroidPickerStyle={false}
+                      Icon={() => (
+                        <Icon
+                          name="chevron-down-outline"
+                          size={20}
+                          color="#00AF00"
+                        />
+                      )}
+                    />
+                  </View>
 
-                {/* Mes */}
-                <View style={{ width: '30%', position: 'relative' }}>
-                  <RNPickerSelect
-                    onValueChange={(value) => handleChange('mesNacimiento', value)}
-                    placeholder={{ label: 'Mes', value: '' }}
-                    items={[
-                      { label: 'Enero', value: 'Enero' },
-                      { label: 'Febrero', value: 'Febrero' },
-                      { label: 'Marzo', value: 'Marzo' },
-                      { label: 'Abril', value: 'Abril' },
-                      { label: 'Mayo', value: 'Mayo' },
-                      { label: 'Junio', value: 'Junio' },
-                      { label: 'Julio', value: 'Julio' },
-                      { label: 'Agosto', value: 'Agosto' },
-                      { label: 'Septiembre', value: 'Septiembre' },
-                      { label: 'Octubre', value: 'Octubre' },
-                      { label: 'Noviembre', value: 'Noviembre' },
-                      { label: 'Diciembre', value: 'Diciembre' },
-                    ]}
-                    value={formData.mesNacimiento || ""}
-                    style={{
-                      inputIOS: {
-                        height: 50,
-                        borderColor: '#00AF00',
-                        borderWidth: 1,
-                        borderRadius: 8,
-                        paddingHorizontal: 10,
-                        width: '100%',
-                        justifyContent: 'center',
-                        textAlign: 'center',
-                        paddingRight: 25, // espacio para la flecha
-                      },
-                      inputAndroid: {
-                        height: 50,
-                        borderColor: '#00AF00',
-                        borderWidth: 1,
-                        borderRadius: 8,
-                        paddingHorizontal: 10,
-                        width: '100%',
-                        justifyContent: 'center',
-                        textAlign: 'center',
-                        paddingRight: 25, // espacio para la flecha
-                      },
-                      iconContainer: {
-                        top: 18,
-                        right: 10,
-                        position: 'absolute',
-                      },
-                    }}
-                    useNativeAndroidPickerStyle={false}
-                    Icon={() => <Icon name="chevron-down-outline" size={20} color="#00AF00" />}
+                  {/* Año */}
+                  <TextInput
+                    style={[styles.input, { width: "30%" }]}
+                    placeholder="Año"
+                    keyboardType="numeric"
+                    maxLength={4}
+                    onChangeText={(text) =>
+                      handleChange("anioNacimiento", text)
+                    }
+                    value={formData.anioNacimiento || ""}
                   />
                 </View>
-
-
-
-                {/* Año */}
-                <TextInput
-                  style={[styles.input, { width: '30%' }]}
-                  placeholder="Año"
-                  keyboardType="numeric"
-                  maxLength={4}
-                  onChangeText={(text) => handleChange('anioNacimiento', text)}
-                  value={formData.anioNacimiento || ""}
-                />
               </View>
-            </View>
-          );
-        }
+            );
+          }
 
-        //Para mostrar los campos de contraseña, repetir contraseña
+          //Para mostrar los campos de contraseña, repetir contraseña
           if (
             campo.name === "contrasena" ||
             campo.name === "repetirContrasena"
@@ -562,7 +583,6 @@ const handleConfirm = (date) => {
   const otrosCampos = campos.filter(
     (c) => !camposUsuario.includes(c) && !camposPersonales.includes(c)
   );
-
 
   return (
     <KeyboardAvoidingView

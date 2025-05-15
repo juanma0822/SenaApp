@@ -14,6 +14,7 @@ import axios from "axios";
 import Constants from "expo-constants";
 import AsyncStorage from "@react-native-async-storage/async-storage"; // Importar AsyncStorage
 import WaveBackground from "../WaveBackground"; // Importar WaveBackground
+import { FontAwesome, FontAwesome5 } from "@expo/vector-icons"; // Importar FontAwesome
 
 export default function CrearLlave({ navigation }) {
   const [nombreLlave, setNombreLlave] = useState("");
@@ -42,7 +43,9 @@ export default function CrearLlave({ navigation }) {
         descripcion: descripcion,
       };
 
-      const response = await axios.post(`${backendUrl}/api/llaves/`, payload, { headers });
+      const response = await axios.post(`${backendUrl}/api/llaves/`, payload, {
+        headers,
+      });
       console.log("Respuesta del backend: ", response.data);
       setLoading(false);
       Alert.alert(
@@ -51,53 +54,67 @@ export default function CrearLlave({ navigation }) {
         [{ text: "OK", onPress: () => navigation.goBack() }]
       );
     } catch (error) {
-      Alert.alert(
-        "Error",
-        "Error al crear la llave: " + error.message,
-        [{ text: "OK" }]
-      );
+      Alert.alert("Error", "Error al crear la llave: " + error.message, [
+        { text: "OK" },
+      ]);
       setLoading(false);
     }
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={styles.container}>
-        <View style={styles.card}>
-          <Text style={styles.title}>Crear Llave</Text>
+    <>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.container}>
+          <View style={styles.card}>
+            <Text style={styles.title}>
+              <FontAwesome5 name="key" size={22} color="#00AF00" /> Crear Llave
+            </Text>
 
-          {/* Título y campo para el nombre de la llave */}
-          <Text style={styles.inputLabel}>Nombre de la Llave</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Escribe el nombre de la llave"
-            value={nombreLlave}
-            onChangeText={setNombreLlave}
-          />
+            {/* Título y campo para el nombre de la llave */}
+            <Text style={styles.inputLabel}>
+              <FontAwesome name="tag" size={18} color="#00AF00" /> Nombre de la Llave
+            </Text>
+            <View style={styles.inputRow}>
+              <TextInput
+                style={styles.input}
+                placeholder="Escribe el nombre de la llave"
+                value={nombreLlave}
+                onChangeText={setNombreLlave}
+              />
+            </View>
 
-          {/* Título y campo para la descripción */}
-          <Text style={styles.inputLabel}>Descripción</Text>
-          <TextInput
-            style={[styles.input, styles.textArea]}
-            placeholder="Escribe una descripción para la llave"
-            value={descripcion}
-            onChangeText={setDescripcion}
-            multiline
-            numberOfLines={4}
-          />
+            {/* Título y campo para la descripción */}
+            <Text style={styles.inputLabel}>
+              <FontAwesome name="info-circle" size={18} color="#00AF00" /> Descripción
+            </Text>
+            <View style={styles.inputRow}>
+              <TextInput
+                style={[styles.input, styles.textArea]}
+                placeholder="Escribe una descripción para la llave"
+                value={descripcion}
+                onChangeText={setDescripcion}
+                multiline
+                numberOfLines={4}
+              />
+            </View>
 
-          {/* Botón para registrar la llave */}
-          {loading ? (
-            <ActivityIndicator size="large" color="#00AF00" />
-          ) : (
-            <TouchableOpacity style={styles.button} onPress={handleCrearLlave}>
-              <Text style={styles.buttonText}>Registrar Llave</Text>
-            </TouchableOpacity>
-          )}
+            {/* Botón para registrar la llave */}
+            {loading ? (
+              <ActivityIndicator size="large" color="#00AF00" />
+            ) : (
+              <TouchableOpacity
+                style={styles.button}
+                onPress={handleCrearLlave}
+              >
+                <FontAwesome name="plus-circle" size={20} color="#fff" style={styles.buttonIcon} />
+                <Text style={styles.buttonText}>Registrar Llave</Text>
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
-        <WaveBackground />
-      </View>
-    </TouchableWithoutFeedback>
+      </TouchableWithoutFeedback>
+      <WaveBackground />
+    </>
   );
 }
 
@@ -136,7 +153,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     color: "#333333", // Color gris oscuro
-    marginBottom: 5,
+    marginBottom: 10,
     marginTop: 10,
   },
   input: {
@@ -147,6 +164,28 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginBottom: 15,
     backgroundColor: "#FFFFFF",
+  },
+  inputRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 15,
+  },
+  inputIcon: {
+    marginRight: 10,
+    marginLeft: 2,
+  },
+  button: {
+    flexDirection: "row",
+    backgroundColor: "#00AF00",
+    paddingVertical: 15,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 10,
+  },
+  buttonIcon: {
+    marginRight: 8,
   },
   textArea: {
     height: 100, // Altura para el campo de texto de descripción

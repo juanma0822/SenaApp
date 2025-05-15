@@ -1,4 +1,3 @@
-// src/components/GestionPrestamoLlaves.js
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -8,11 +7,13 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
+  TextInput,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import Constants from "expo-constants";
 import WaveBackground from "../WaveBackground";
+import { FontAwesome5 } from "@expo/vector-icons";
 
 export default function GestionPrestamoLlaves() {
   const [llavesDisponibles, setLlavesDisponibles] = useState([]);
@@ -22,6 +23,10 @@ export default function GestionPrestamoLlaves() {
   const [seleccionFuncionario, setSeleccionFuncionario] = useState(null);
   const [devolucionLlave, setDevolucionLlave] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  // Estados para los buscadores
+  const [busquedaLlave, setBusquedaLlave] = useState("");
+  const [busquedaFuncionario, setBusquedaFuncionario] = useState("");
 
   const baseUrl = Constants.expoConfig.extra.REACT_APP_BACKEND_URL;
 
@@ -48,15 +53,39 @@ export default function GestionPrestamoLlaves() {
     cargarDatos();
   }, []);
 
+  // Filtrar llaves y funcionarios según búsqueda
+  const llavesFiltradas = llavesDisponibles
+    .filter((llave) =>
+      llave.nombre_llave.toLowerCase().includes(busquedaLlave.toLowerCase())
+    )
+    .slice(0, 5);
+
+  const funcionariosFiltrados = usuarios
+    .filter((usuario) => {
+      const nombreCompleto =
+        `${usuario.nombres} ${usuario.apellidos}`.toLowerCase();
+      return (
+        nombreCompleto.includes(busquedaFuncionario.toLowerCase()) ||
+        usuario.numero_documento.includes(busquedaFuncionario)
+      );
+    })
+    .slice(0, 5);
+
   const realizarPrestamo = async () => {
     if (!seleccionLlave || !seleccionFuncionario) {
-      Alert.alert("Campos requeridos", "Selecciona una llave y un funcionario.");
+      Alert.alert(
+        "Campos requeridos",
+        "Selecciona una llave y un funcionario."
+      );
       return;
     }
 
     setLoading(true);
     const token = await AsyncStorage.getItem("token");
-    const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    };
 
     try {
       await axios.post(
@@ -70,6 +99,8 @@ export default function GestionPrestamoLlaves() {
       Alert.alert("Éxito", "Préstamo registrado correctamente.");
       setSeleccionLlave(null);
       setSeleccionFuncionario(null);
+      setBusquedaLlave("");
+      setBusquedaFuncionario("");
       cargarDatos();
     } catch (error) {
       Alert.alert("Error", "No se pudo registrar el préstamo.");
@@ -86,10 +117,17 @@ export default function GestionPrestamoLlaves() {
 
     setLoading(true);
     const token = await AsyncStorage.getItem("token");
-    const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    };
 
     try {
-      await axios.put(`${baseUrl}/api/llaves/prestamos-llaves/devolver/${devolucionLlave.id_prestamo}`, {}, { headers });
+      await axios.put(
+        `${baseUrl}/api/llaves/prestamos-llaves/devolver/${devolucionLlave.id_prestamo}`,
+        {},
+        { headers }
+      );
       Alert.alert("Éxito", "Llave devuelta correctamente.");
       setDevolucionLlave(null);
       cargarDatos();
@@ -101,62 +139,145 @@ export default function GestionPrestamoLlaves() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.card}>
-        <Text style={styles.title}>Gestión de Préstamo de Llaves</Text>
+    <>
+      <ScrollView contentContainerStyle={styles.container}>
+        <View style={styles.card}>
+          <Text style={styles.title}>
+            <FontAwesome5 name="key" size={22} color="#00AF00" /> Gestión de
+            Préstamo de Llaves
+          </Text>
 
-        <Text style={styles.subtitle}>1. Selecciona una llave disponible:</Text>
-        {llavesDisponibles.map((llave) => (
+          <Text style={styles.subtitle}>
+            1. Selecciona
+            una llave disponible:
+          </Text>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Buscar llave..."
+            placeholderTextColor="#00AF00"
+            value={busquedaLlave}
+            onChangeText={setBusquedaLlave}
+          />
+          {llavesFiltradas.length === 0 && (
+            <Text style={styles.noResultsText}>No se encontraron llaves.</Text>
+          )}
+          {llavesFiltradas.map((llave) => (
+            <TouchableOpacity
+              key={llave.id_llave}
+              style={[
+                styles.item,
+                seleccionLlave?.id_llave === llave.id_llave &&
+                  styles.selectedItem,
+              ]}
+              onPress={() => setSeleccionLlave(llave)}
+            >
+              <FontAwesome5
+                name="key"
+                size={16}
+                color="#008000"
+                style={styles.itemIcon}
+              />
+              <Text style={styles.itemText}>{llave.nombre_llave}</Text>
+            </TouchableOpacity>
+          ))}
+
+          <Text style={styles.subtitle}>
+            2. Selecciona
+            un funcionario:
+          </Text>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Buscar funcionario..."
+            placeholderTextColor="#00AF00"
+            value={busquedaFuncionario}
+            onChangeText={setBusquedaFuncionario}
+          />
+          {funcionariosFiltrados.length === 0 && (
+            <Text style={styles.noResultsText}>
+              No se encontraron funcionarios.
+            </Text>
+          )}
+          {funcionariosFiltrados.map((usuario) => (
+            <TouchableOpacity
+              key={usuario.numero_documento}
+              style={[
+                styles.item,
+                seleccionFuncionario?.numero_documento ===
+                  usuario.numero_documento && styles.selectedItem,
+              ]}
+              onPress={() => setSeleccionFuncionario(usuario)}
+            >
+              <FontAwesome5
+                name="user"
+                size={16}
+                color="#008000"
+                style={styles.itemIcon}
+              />
+              <Text style={styles.itemText}>
+                {usuario.nombres} {usuario.apellidos}
+              </Text>
+            </TouchableOpacity>
+          ))}
+
           <TouchableOpacity
-            key={llave.id_llave}
-            style={[
-              styles.item,
-              seleccionLlave?.id_llave === llave.id_llave && styles.selectedItem,
-            ]}
-            onPress={() => setSeleccionLlave(llave)}
+            style={[styles.button, loading && styles.buttonDisabled]}
+            onPress={realizarPrestamo}
+            disabled={loading}
           >
-            <Text>{llave.nombre_llave}</Text>
+            <FontAwesome5
+              name="plus-circle"
+              size={18}
+              color="#fff"
+              style={styles.buttonIcon}
+            />
+            <Text style={styles.buttonText}>
+              {loading ? "Procesando..." : "Registrar Préstamo"}
+            </Text>
           </TouchableOpacity>
-        ))}
 
-        <Text style={styles.subtitle}>2. Selecciona un funcionario:</Text>
-        {usuarios.map((usuario) => (
+          <Text style={[styles.subtitle, { marginTop: 30 }]}>
+             3. Devolución
+            de Llaves:
+          </Text>
+          {llavesPrestadas.map((prestamo) => (
+            <TouchableOpacity
+              key={prestamo.id_prestamo}
+              style={[
+                styles.item,
+                devolucionLlave?.id_prestamo === prestamo.id_prestamo &&
+                  styles.selectedItem,
+              ]}
+              onPress={() => setDevolucionLlave(prestamo)}
+            >
+              <FontAwesome5
+                name="undo"
+                size={16}
+                color="#008000"
+                style={styles.itemIcon}
+              />
+              <Text style={styles.itemText}>{prestamo.nombre_llave}</Text>
+            </TouchableOpacity>
+          ))}
+
           <TouchableOpacity
-            key={usuario.numero_documento}
-            style={[
-              styles.item,
-              seleccionFuncionario?.numero_documento === usuario.numero_documento && styles.selectedItem,
-            ]}
-            onPress={() => setSeleccionFuncionario(usuario)}
+            style={[styles.button, loading && styles.buttonDisabled]}
+            onPress={devolverLlave}
+            disabled={loading}
           >
-            <Text>{usuario.nombres} {usuario.apellidos}</Text>
+            <FontAwesome5
+              name="check-circle"
+              size={18}
+              color="#fff"
+              style={styles.buttonIcon}
+            />
+            <Text style={styles.buttonText}>
+              {loading ? "Procesando..." : "Devolver Llave"}
+            </Text>
           </TouchableOpacity>
-        ))}
-
-        <TouchableOpacity style={styles.button} onPress={realizarPrestamo} disabled={loading}>
-          <Text style={styles.buttonText}>Registrar Préstamo</Text>
-        </TouchableOpacity>
-
-        <Text style={[styles.subtitle, { marginTop: 30 }]}>3. Devolución de Llaves:</Text>
-        {llavesPrestadas.map((prestamo) => (
-          <TouchableOpacity
-            key={prestamo.id_prestamo}
-            style={[
-              styles.item,
-              devolucionLlave?.id_prestamo === prestamo.id_prestamo && styles.selectedItem,
-            ]}
-            onPress={() => setDevolucionLlave(prestamo)}
-          >
-            <Text>{prestamo.nombre_llave} - {prestamo.nombres}</Text>
-          </TouchableOpacity>
-        ))}
-
-        <TouchableOpacity style={styles.button} onPress={devolverLlave} disabled={loading}>
-          <Text style={styles.buttonText}>Devolver Llave</Text>
-        </TouchableOpacity>
-      </View>
+        </View>
+      </ScrollView>
       <WaveBackground />
-    </ScrollView>
+    </>
   );
 }
 
@@ -172,11 +293,15 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: 450,
     backgroundColor: "#FFFFFF",
-    borderRadius: 10,
+    borderRadius: 16,
     padding: 20,
     elevation: 5,
     borderWidth: 3,
     borderColor: "#008000",
+    shadowColor: "#00AF00",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
   },
   title: {
     fontSize: 22,
@@ -191,7 +316,20 @@ const styles = StyleSheet.create({
     color: "#333",
     marginVertical: 10,
   },
+  searchInput: {
+    borderWidth: 1.5,
+    borderColor: "#00AF00",
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginBottom: 10,
+    color: "#008000",
+    backgroundColor: "#F8FFF8",
+    fontSize: 15,
+  },
   item: {
+    flexDirection: "row",
+    alignItems: "center",
     padding: 12,
     backgroundColor: "#fff",
     borderRadius: 6,
@@ -199,19 +337,43 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     marginBottom: 8,
   },
+  itemIcon: {
+    marginRight: 10,
+  },
   selectedItem: {
     borderColor: "#00AF00",
     borderWidth: 2,
+    backgroundColor: "#E6F9E6",
+  },
+  itemText: {
+    color: "#008000",
+    fontWeight: "bold",
+    fontSize: 15,
+  },
+  noResultsText: {
+    color: "#888",
+    fontStyle: "italic",
+    marginBottom: 8,
+    textAlign: "center",
   },
   button: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: "#00AF00",
     padding: 15,
     borderRadius: 10,
-    alignItems: "center",
     marginTop: 15,
+  },
+  buttonIcon: {
+    marginRight: 8,
+  },
+  buttonDisabled: {
+    opacity: 0.7,
   },
   buttonText: {
     color: "#FFFFFF",
     fontWeight: "bold",
+    fontSize: 16,
   },
 });

@@ -1,7 +1,16 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Dimensions } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  SafeAreaView,
+  Dimensions,
+} from "react-native";
 import CamposGeneralesVisitante from "../../components/forms/camposGeneralesVisitante";
 import IngresoSalidaFuncionario from "../../components/IngresoSalidaFuncionario";
+import { FontAwesome } from "@expo/vector-icons";
 
 const { height } = Dimensions.get("window"); // Obtener el alto de la pantalla
 const TAB_BAR_HEIGHT = 90; // Altura de la barra de navegación
@@ -30,7 +39,9 @@ export default function RegistroVisitantes({ navigation }) {
         <View
           style={[
             styles.card,
-            !mostrarCampos && !tipoIngreso ? styles.smallCard : styles.largeCard, // Ajusta el tamaño dinámicamente
+            !mostrarCampos && !tipoIngreso
+              ? styles.smallCard
+              : styles.largeCard, // Ajusta el tamaño dinámicamente
           ]}
         >
           <Text style={styles.title}>Registro de Visitantes</Text>
@@ -44,27 +55,48 @@ export default function RegistroVisitantes({ navigation }) {
                   style={styles.button}
                   onPress={handleIngresoVisitante}
                 >
+                  <FontAwesome
+                    name="user-plus"
+                    size={22}
+                    color="#fff"
+                    style={styles.buttonIcon}
+                  />
                   <Text style={styles.buttonText}>Ingreso Visitante</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                   style={styles.button}
-                  onPress={() => setTipoIngreso("entrada")} // Muestra el formulario de ingreso de funcionarios
+                  onPress={() => setTipoIngreso("entrada")}
                 >
-                  <Text style={styles.buttonText}>Ingreso Funcionario</Text>
+                  <FontAwesome
+                    name="sign-in"
+                    size={22}
+                    color="#fff"
+                    style={styles.buttonIcon}
+                  />
+                  <Text style={styles.buttonText}>Ingreso Usuario</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                   style={styles.button}
-                  onPress={() => setTipoIngreso("salida")} // Muestra el formulario de salida de funcionarios
+                  onPress={() => setTipoIngreso("salida")}
                 >
-                  <Text style={styles.buttonText}>Salida Funcionario</Text>
+                  <FontAwesome
+                    name="sign-out"
+                    size={22}
+                    color="#fff"
+                    style={styles.buttonIcon}
+                  />
+                  <Text style={styles.buttonText}>Salida Usuario</Text>
                 </TouchableOpacity>
               </View>
             ) : mostrarCampos ? (
               <>
                 <CamposGeneralesVisitante onSubmit={handleSubmit} />
-                <TouchableOpacity style={styles.cancelButton} onPress={handleCancelar}>
+                <TouchableOpacity
+                  style={styles.cancelButton}
+                  onPress={handleCancelar}
+                >
                   <Text style={styles.cancelButtonText}>Cancelar</Text>
                 </TouchableOpacity>
               </>
@@ -75,7 +107,10 @@ export default function RegistroVisitantes({ navigation }) {
                   tipoIngreso={tipoIngreso} // Pasa 'entrada' o 'salida' como prop
                   onCancel={handleCancelar}
                 />
-                <TouchableOpacity style={styles.cancelButton} onPress={handleCancelar}>
+                <TouchableOpacity
+                  style={styles.cancelButton}
+                  onPress={handleCancelar}
+                >
                   <Text style={styles.cancelButtonText}>Cancelar</Text>
                 </TouchableOpacity>
               </>
@@ -144,6 +179,7 @@ const styles = StyleSheet.create({
     flex: 1, // Ocupa todo el espacio disponible
   },
   button: {
+    flexDirection: "row", // Ícono y texto en línea
     backgroundColor: "#00AF00",
     paddingVertical: 15,
     paddingHorizontal: 50,
@@ -151,6 +187,10 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     width: "85%",
     alignItems: "center",
+    justifyContent: "center",
+  },
+  buttonIcon: {
+    marginRight: 12,
   },
   buttonText: {
     color: "#FFFFFF",

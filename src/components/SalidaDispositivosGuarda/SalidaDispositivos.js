@@ -81,11 +81,9 @@ export default function SalidaDispositivo({ navigation }) {
       );
     } catch (error) {
       console.error("Error al registrar salida:", error);
-      Alert.alert(
-        "Error",
-        "Error al registrar la salida: " + error.message,
-        [{ text: "OK" }]
-      );
+      Alert.alert("Error", "Error al registrar la salida: " + error.message, [
+        { text: "OK" },
+      ]);
       setLoading(false);
     }
   };
@@ -160,9 +158,9 @@ export default function SalidaDispositivo({ navigation }) {
               </TouchableOpacity>
             )}
           </View>
-          <WaveBackground />
         </ScrollView>
       </TouchableWithoutFeedback>
+      <WaveBackground />
     </KeyboardAvoidingView>
   );
 }

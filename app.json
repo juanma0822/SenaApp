@@ -13,7 +13,10 @@
       "backgroundColor": "#ffffff"
     },
     "extra": {
-      "REACT_APP_BACKEND_URL": "https://sena-backend-v5t4.onrender.com"
+      "REACT_APP_BACKEND_URL": "https://sena-backend-v5t4.onrender.com",
+      "eas": {
+        "projectId": "179675f3-cf62-426e-9dfe-e06804ac081e"
+      }
     },
     "plugins": [
       [
@@ -24,7 +27,11 @@
           "recordAudioAndroid": true
         }
       ],
-      "expo-audio"
-    ]
+      "expo-audio",
+      "expo-font"
+    ],
+    "android": {
+      "package": "com.juanma0822.SenaApp"
+    }
   }
 }

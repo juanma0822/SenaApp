@@ -6,8 +6,10 @@ import {
   TouchableOpacity,
   Alert,
   Image,
+  ScrollView,
 } from "react-native";
 import { CommonActions } from "@react-navigation/native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import jwtDecode from "jwt-decode";
 import { FontAwesome } from "@expo/vector-icons"; // Importar íconos
@@ -54,81 +56,96 @@ export default function Home(props) {
   }, []);
 
   return (
-    <View style={styles.container}>
-      {/* Logo del SENA */}
-      <View style={styles.logoContainer}>
-        <Image
-          source={require("../../../assets/LogoSenaWhite.png")}
-          style={styles.logoImage}
-        />
-        <Text style={styles.logoText}>SENA Go!</Text>
-      </View>
-
-      {/* Contenedor principal */}
-      <View style={styles.contentContainer}>
-        <Text style={styles.welcomeText}>Bienvenido, {usuario.nombres}!</Text>
-        <Text style={styles.instructionsText}>
-          Escanea los QR usando los botones de abajo.
-        </Text>
-
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={styles.optionButton}
-            onPress={() =>
-              props.navigation.navigate("EscanearQR", { tipo: 'entrada' })
-            }
-          >
-            <FontAwesome
-              name="sign-in"
-              size={18}
-              color="#FFFFFF"
-              style={styles.buttonIcon}
+    <SafeAreaView style={styles.safeContainer}>
+      <ScrollView 
+        contentContainerStyle={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.container}>
+          {/* Logo del SENA */}
+          <View style={styles.logoContainer}>
+            <Image
+              source={require("../../../assets/LogoSenaWhite.png")}
+              style={styles.logoImage}
             />
-            <Text style={styles.optionText}>Registrar Ingreso</Text>
-          </TouchableOpacity>
+            <Text style={styles.logoText}>SENA Go!</Text>
+          </View>
 
-          <TouchableOpacity
-            style={styles.optionButton}
-            onPress={() =>
-              props.navigation.navigate("EscanearQR", { tipo: 'salida' })
-            }
-          >
-            <FontAwesome
-              name="sign-out"
-              size={18}
-              color="#FFFFFF"
-              style={styles.buttonIcon}
-            />
-            <Text style={styles.optionText}>Registrar Salida</Text>
-          </TouchableOpacity>
+          {/* Contenedor principal */}
+          <View style={styles.contentContainer}>
+            <Text style={styles.welcomeText}>Bienvenido, {usuario.nombres}!</Text>
+            <Text style={styles.instructionsText}>
+              Escanea los QR usando los botones de abajo.
+            </Text>
+
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.optionButton}
+                onPress={() =>
+                  props.navigation.navigate("EscanearQR", { tipo: 'entrada' })
+                }
+              >
+                <FontAwesome
+                  name="sign-in"
+                  size={18}
+                  color="#FFFFFF"
+                  style={styles.buttonIcon}
+                />
+                <Text style={styles.optionText}>Registrar Ingreso</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.optionButton}
+                onPress={() =>
+                  props.navigation.navigate("EscanearQR", { tipo: 'salida' })
+                }
+              >
+                <FontAwesome
+                  name="sign-out"
+                  size={18}
+                  color="#FFFFFF"
+                  style={styles.buttonIcon}
+                />
+                <Text style={styles.optionText}>Registrar Salida</Text>
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
+              <FontAwesome
+                name="power-off"
+                size={18}
+                color="#FFFFFF"
+                style={styles.buttonIcon}
+              />
+              <Text style={styles.signOutButtonText}>Cerrar sesión</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-
-        <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
-          <FontAwesome
-            name="power-off"
-            size={18}
-            color="#FFFFFF"
-            style={styles.buttonIcon}
-          />
-          <Text style={styles.signOutButtonText}>Cerrar sesión</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeContainer: {
+    flex: 1,
+    backgroundColor: "#00AF00",
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: "center", // Centra el contenido verticalmente
+    minHeight: "100%",
+  },
   container: {
     flex: 1,
     backgroundColor: "#00AF00", // Fondo verde institucional
     alignItems: "center",
-    justifyContent: "flex-start", // Alinear el contenido hacia la parte superior
+    justifyContent: "center", // Alinear el contenido hacia la parte superior
     padding: 20,
   },
   logoContainer: {
     alignItems: "center",
-    marginTop: 50, // Espaciado desde la parte superior
-    marginBottom: 80, // Espaciado entre el logo y el contenido principal
+    marginBottom: 40, // Espaciado entre el logo y el contenido principal
   },
   logoImage: {
     width: 100,

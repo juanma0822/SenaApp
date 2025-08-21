@@ -108,21 +108,21 @@ const styles = StyleSheet.create({
   tabBar: {
     position: "absolute",
     backgroundColor: "#ffffff",
-    height: 90,
+    height: 70,
     borderTopWidth: 0,
     elevation: 0,
-    paddingBottom: 10,
-    paddingTop: 12,
+    paddingBottom: 5,
+    paddingTop: 8,
   },
   customButtonContainer: {
-    top: -35,
+    top: -25,
     justifyContent: "center",
     alignItems: "center",
   },
   customButton: {
-    width: 75,
-    height: 75,
-    borderRadius: 37.5, // Circular
+    width: 65,
+    height: 65,
+    borderRadius: 32.5, // Circular
     backgroundColor: "#0e7e0e",
     justifyContent: "center",
     alignItems: "center",

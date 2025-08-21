@@ -46,12 +46,14 @@ export default function RootStack({ initialRouteName = "Splash", usuario }) {
       <Stack.Screen
         name="AprendizFuncionarioTabs"
         component={AprendizFuncionarioTabs}
+        initialParams={{ usuario }}
         options={{ headerShown: false }}
       />
 
       <Stack.Screen
         name="AdminTabs"
         component={AdminTabs}
+        initialParams={{ usuario }}
         options={{ headerShown: false }}
       />
 

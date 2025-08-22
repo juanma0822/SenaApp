@@ -54,46 +54,31 @@ export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
     hideDatePicker();
   };
 
-  //Obtener la lista de los departamentos al momento de cargarse el componente
+
+  //Obtener la lista de departamentos al momento de cargarse el componente
   useEffect(() => {
-    // Obtener la lista de departamentos al cargar el componente
-    fetch(
-      "https://www.datos.gov.co/resource/xdk5-pm3f.json?$select=departamento&$group=departamento"
-    )
+    fetch("https://api-colombia.com/api/v1/Department")
       .then((response) => response.json())
       .then((data) => {
-        const departamentosList = data.map((item) => item.departamento).sort();
+        // Guardamos objetos con id y nombre
+        const departamentosList = data.map((item) => ({
+          id: item.id,
+          name: item.name,
+        }));
+
         setDepartamentos(departamentosList);
         setLoadingDepartamentos(false);
       })
       .catch((error) => {
-        //Manejo de errores al cargar los departamentos
+        console.warn(error);
         Alert.alert(
           "Error",
-          "No se pudieron cargar los municipios. ¿Deseas reintentar?",
+          "No se pudieron cargar los departamentos. ¿Deseas reintentar?",
           [
             {
               text: "Reintentar",
               onPress: () => {
-                setLoadingMunicipios(true);
-                fetch(
-                  `https://www.datos.gov.co/resource/xdk5-pm3f.json?departamento=${departamento}`
-                )
-                  .then((response) => response.json())
-                  .then((data) => {
-                    const municipiosList = data
-                      .map((item) => item.municipio)
-                      .sort();
-                    setMunicipios(municipiosList);
-                    setLoadingMunicipios(false);
-                  })
-                  .catch(() => {
-                    setLoadingMunicipios(false);
-                    Alert.alert(
-                      "Error",
-                      "No se pudo obtener los municipios. Inténtalo más tarde."
-                    );
-                  });
+                setLoadingDepartamentos(true);
               },
             },
             { text: "Cancelar", style: "cancel" },
@@ -103,54 +88,48 @@ export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
   }, []);
 
   // Obtener la lista de municipios al seleccionar un departamento
-  const handleDepartamentoChange = (departamento) => {
-    handleChange("departamento", departamento);
+  const handleDepartamentoChange = (departamentoName) => {
+    // Buscamos el id del departamento seleccionado
+    const dep = departamentos.find((d) => d.name === departamentoName);
+
+    handleChange("departamento", departamentoName);
     setLoadingMunicipios(true);
-    // Obtener la lista de municipios del departamento seleccionado
-    fetch(
-      `https://www.datos.gov.co/resource/xdk5-pm3f.json?departamento=${departamento}`
-    )
+
+    if (!dep) {
+      setLoadingMunicipios(false);
+      return;
+    }
+
+    fetch("https://api-colombia.com/api/v1/City")
       .then((response) => response.json())
       .then((data) => {
-        const municipiosList = data.map((item) => item.municipio).sort();
+        // Filtramos por departmentId
+        const municipiosList = data
+          .filter((item) => item.departmentId === dep.id)
+          .map((item) => item.name)
+          .sort();
+
         setMunicipios(municipiosList);
         setLoadingMunicipios(false);
       })
       .catch((error) => {
-        //Manejo de errores al no cargar los municipios
+        console.warn(error);
+        setLoadingMunicipios(false);
         Alert.alert(
           "Error",
           "No se pudieron cargar los municipios. ¿Deseas reintentar?",
           [
             {
               text: "Reintentar",
-              onPress: () => {
-                setLoadingMunicipios(true);
-                fetch(
-                  `https://www.datos.gov.co/resource/xdk5-pm3f.json?departamento=${departamento}`
-                )
-                  .then((response) => response.json())
-                  .then((data) => {
-                    const municipiosList = data
-                      .map((item) => item.municipio)
-                      .sort();
-                    setMunicipios(municipiosList);
-                    setLoadingMunicipios(false);
-                  })
-                  .catch(() => {
-                    setLoadingMunicipios(false);
-                    Alert.alert(
-                      "Error",
-                      "No se pudo obtener los municipios. Inténtalo más tarde."
-                    );
-                  });
-              },
+              onPress: () => handleDepartamentoChange(departamentoName),
             },
             { text: "Cancelar", style: "cancel" },
           ]
         );
       });
   };
+
+
 
   const handleChange = (name, value) => {
     let formattedValue = value;
@@ -429,8 +408,8 @@ export default function RegistroForm({ titulo, campos, onSubmit, botonText }) {
                     }}
                   >
                     <Picker.Item label="Selecciona un departamento" value="" />
-                    {departamentos.map((dept, index) => (
-                      <Picker.Item key={index} label={dept} value={dept} />
+                    {departamentos.map((dept) => (
+                      <Picker.Item key={dept.id} label={dept.name} value={dept.name} />
                     ))}
                   </Picker>
                 )}

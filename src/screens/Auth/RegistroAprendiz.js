@@ -58,6 +58,8 @@ export default function RegistroAprendiz() {
       nivelSisben: data.nivelSisben,
       grupoSisben: data.grupoSisben,
     };
+
+    console.log("Payload de registro: ", payload);
   
     try {
       const response = await axios.post(`${backendUrl}/api/aprendices`, payload);

@@ -1,3 +1,4 @@
+// Importaciones básicas de React y React Native
 import React, { useEffect } from "react";
 import {
   Text,
@@ -8,11 +9,25 @@ import {
   Image,
   ScrollView,
 } from "react-native";
+
+// Importaciones para navegación y manejo de estado
 import { CommonActions } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+// Importaciones para almacenamiento local y autenticación
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import jwtDecode from "jwt-decode";
-import { FontAwesome } from "@expo/vector-icons"; // Importar íconos
+
+// Importación de íconos
+import { FontAwesome } from "@expo/vector-icons";
+
+/**
+ * Componente Home - Pantalla principal para usuarios autenticados
+ * Permite a los usuarios registrar su ingreso y salida mediante códigos QR
+ * 
+ * @param {Object} props - Props del componente, incluye navegación y parámetros de ruta
+ * @returns {JSX.Element} Pantalla de inicio con opciones de registro
+ */
 
 export default function Home(props) {
   const { usuario } = props.route.params;
@@ -177,6 +192,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#00AF00", // Verde institucional
     marginBottom: 10,
+    textAlign: "center",
+    width: "100%",
   },
   infoRow: {
     flexDirection: "row",
